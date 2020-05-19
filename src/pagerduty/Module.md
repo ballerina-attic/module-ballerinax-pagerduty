@@ -1,23 +1,23 @@
 # PagerDuty Module
 
-The Ballerina pagerduty connector allows you to work with pagerDuty users, escalationPolicies, services , schedules, services and incidents through the pagerduty Rest API. 
-It handles the API Token Authentication. Following tokens are using under this mechanism:
+The Ballerina PagerDuty connector allows you to work with PagerDuty users, escalationPolicies, services, schedules, and incidents through the PagerDuty Rest API. 
+It handles the API Token Authentication. Following tokens are can be used under this mechanism:
 
-* Account API token - It can access to all of the data on an account, and can either be granted read-only access or full access to read, write, update, and delete. 
-Only account administrators have the ability to generate account API tokens
-* User API token - It can access to all of the data that the associated user account has access to
+*Account API token - It can access all the data in an account and can either be granted read-only access or full access to read, write, update, and delete. 
+Only account administrators have the ability to generate account API tokens.
+* User API token - It can access all the data that the associated user account has access to.
 
->Note: According to the account's role permission, The user API token can access all the functionality what we have but
-> the account API token can't access the operations which to be need the `from email Id`. They are `createUser`, `createIncident`, `createEscalationPolicy`, `createSchedule`, `manageIncidents`, `updateIncident` and `addNote`.
+>**Note:** According to the account's role permission, the user API token can access all the available functionality. However,
+> the account API token can't access the operations, which need the `from email Id`. They are `createUser`, `createIncident`, `createEscalationPolicy`, `createSchedule`, `manageIncidents`, `updateIncident`, and `addNote`.
 
-Following groups are provided by Ballerina to interact with different API groups of the pagerDuty REST API. 
-- **pagerDuty:Account** - The `Account` used to initiate the contact with pagerDuty API and create all the associated sub groups with the operations.
-- **pagerDuty:Users** - The `Users` will be used to create/get/delete the Users/Contact methods/ Notification rules.
-- **pagerDuty:EscalationPolicies** - The `EscalationPolicies` will be used to create/get/update/delete the escalation policies.
-- **pagerDuty:Schedules** - This `Schedules` will be used to create/get/delete the schedules.
-- **pagerDuty:Services** - This `Services` will be used to create/update|delete the services/integrations. 
-- **pagerDuty:Extensions** - This `Extensions` will be used to create/get/update/delete the extensions.
-- **pagerDuty:Incidents** - The `Incidents` used to create/get/update/manage/delete/snooze the incidents and add notes into that.
+The following groups are provided by Ballerina to interact with the different API groups of the PagerDuty REST API. 
+- **pagerDuty:Account** - The `Account`, which is used to initiate the contact with the PagerDuty API and create all the associated sub groups with the operations.   
+- **pagerDuty:Users** - The `Users`, which will be used to create/get/delete the Users/Contact methods/ Notification rules.
+- **pagerDuty:EscalationPolicies** - The `EscalationPolicies`, which will be used to create/get/update/delete the escalation policies.
+- **pagerDuty:Schedules** - The `Schedules`, which will be used to create/get/delete the schedules.
+- **pagerDuty:Services** - The `Services`, which will be used to create/update|delete the services/integrations. 
+- **pagerDuty:Extensions** - The `Extensions`, which will be used to create/get/update/delete the extensions.
+- **pagerDuty:Incidents** - The `Incidents`, which will be used to create/get/update/manage/delete/snooze the incidents and add notes into that.
 
 ## Compatibility
 
@@ -30,37 +30,37 @@ Following groups are provided by Ballerina to interact with different API groups
 
 **Generating tokens**
 
-* Get the [pagerDuty account](https://www.pagerduty.com/).
-* Generates the one of the API token
-    * User API token
+* Create a [PagerDuty account](https://www.pagerduty.com/).
+* Generate one of the below API tokens.
+    * User API token:
         * Go to Configuration->Users->User setting-> Create API user token
-    * Account API token
+    * Account API token:
         * Go to Configuration->API Access->Create New API Key
         
->Note: The user API token supports all the functionality belongs the role permission which we have but the account API token can't access the operations which to be need the `from email Id`(`createUser`, `createIncident`, `createEscalationPolicy`, `createSchedule`, `manageIncidents`, `updateIncident` and `addNote`).
+>**Note:** The user API token supports all the available functionalities of the role permission. However, the account API token can't access the operations, which need the `from email Id`(`createUser`, `createIncident`, `createEscalationPolicy`, `createSchedule`, `manageIncidents`, `updateIncident`, and `addNote`).
 
-**Create the `pagerduty:Accoun`t**
+>**Create the `pagerduty:Account`**
 
 First, execute the below command to import the `ballerinax/pagerduty` module into the Ballerina project.
 ```ballerina
 import ballerinax/pagerduty;
 ```
-Instantiate the `pagerduty:Account` by giving token authentication details in the `pagerduty:Configuration`. 
+Instantiate the `pagerduty:Account` by giving the token authentication details in the `pagerduty:Configuration`. 
 
-You can define the pagerduty configuration and create the account as follows. 
+You can define the PagerDuty configuration and create the account as follows. 
 ```ballerina
 Configuration pagerdutyConfig = {
     oauth2Config: {
         accessToken: <API_TOKEN>
     }
 };
-// Create the pagerduty account.
+// Creates the PagerDuty account.
 Account pagerduty = new(pagerdutyConfig);
 ```
 
-**Pagerduty operations related to `Users`**
+**PagerDuty operations related to `Users`**
 
-The `createUser` remote function can be used to create the user in a pagerDuty `Users`. 
+The `createUser` remote function can be used to create a user in PagerDuty `Users`.  
 
 ```ballerina
 Users users = pagerduty.getUsers();
@@ -75,7 +75,7 @@ if (response is Error) {
 
 **Pagerduty operations related to `EscalationPolicies`**
 
-The `createEscalationPolicy` remote function can be used to create the escalation policy in a pagerDuty `Escalation Policies`. 
+The `createEscalationPolicy` remote function can be used to create the escalation policy in PagerDuty `Escalation Policies`.
 
 ```ballerina
 EscalationPolicies escalations = pagerduty.getEscalationPolicies();
@@ -95,7 +95,7 @@ if (response is Error) {
 
 **Pagerduty operations related to `Schedules`**
 
-The `createSchedule` remote function can be used to create the schedule in a pagerDuty `Schedules`. 
+The `createSchedule` remote function can be used to create the schedule in PagerDuty `Schedules`.  
 
 ```ballerina
 Schedules schedules = pagerduty.getSchedules();
@@ -119,7 +119,7 @@ if (response is Error) {
 
 **Pagerduty operations related to `Services`**
 
-The `createService` remote function can be used to create the Services in a pagerDuty `Services`. 
+The `createService` remote function can be used to create the Services in PagerDuty `Services`. 
 
 ```ballerina
 Services services = pagerduty.getServices();
@@ -136,7 +136,7 @@ if (response is Error) {
 
 **Pagerduty operations related to `Extensions`**
 
-The `createExtension` remote function can be used to create the extension in a pagerDuty `Extensions`. 
+The `createExtension` remote function can be used to create the extension in PagerDuty `Extensions`. 
 
 ```ballerina
 Extensions extensions = pagerduty.getExtensions();
@@ -162,7 +162,7 @@ if (response is Error) {
 
 **Pagerduty operations related to `Incidents`**
 
-The `createIncident` remote function can be used to create the incident in a pagerDuty `Incidents`. 
+The `createIncident` remote function can be used to create the incident in PagerDuty `Incidents`.   
 
 ```ballerina
 Incidents incidents = pagerduty.getIncidents();

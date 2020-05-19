@@ -1,6 +1,6 @@
 ## Module Overview
 
-The `ballerinax/pagerduty` allows you to work with pagerDuty users, escalationPolicies, services , schedules, services and incidents through the pagerDuty Rest API. 
+The `ballerinax/pagerduty` module allows you to work with PagerDuty users, escalationPolicies, services, schedules, and incidents through the PagerDuty Rest API. 
 
 The following sections provide you details on how to use the `pagerduty`.
 
@@ -18,14 +18,14 @@ The following sections provide you details on how to use the `pagerduty`.
 
 ## Feature Overview
 
-Following groups are provided by Ballerina to interact with different API groups of the pagerDuty REST API. 
-1. **pagerDuty:Account** - The `Account` used to initiate the contact with pagerDuty API and create all the associated sub groups with the operations.
-2. **pagerDuty:Users** - The `Users` will be used to create/get/delete the User/Contact method/ Notification rule.
-3. **pagerDuty:EscalationPolicies** - The `EscalationPolicies` will be used to create/get/update/delete the escalation policy
-4. **pagerDuty:Schedules** - This `Schedules` will be used to create/get/delete the schedule.
-5. **pagerDuty:Services** - This `Services` will be used to create/update|delete the services/integration. 
-6. **pagerDuty:Extensions** - This `Extensions` will be used to create/get/update/delete the extension.
-6. **pagerDuty:Incidents** - The `Incidents` used to create/get/update/manage/delete/snooze the incidents and add note into that.
+The following groups are provided by Ballerina to interact with different API groups of the pagerDuty REST API. 
+1. **pagerDuty:Account** - The `Account` used to initiate the contact with the pagerDuty API and create all the associated sub groups with the operations.
+2. **pagerDuty:Users** - The `Users`, which will be used to create/get/delete the User/Contact method/ Notification rule.
+3. **pagerDuty:EscalationPolicies** - The `EscalationPolicies`, which will be used to create/get/update/delete the escalation policy.
+4. **pagerDuty:Schedules** - The `Schedules`, which will be used to create/get/delete the schedule.
+5. **pagerDuty:Services** - The `Services`, which will be used to create/update|delete the services/integration. 
+6. **pagerDuty:Extensions** - The `Extensions`, which will be used to create/get/update/delete the extension.   
+7. **pagerDuty:Incidents** - The `Incidents`, which will be used to create/get/update/manage/delete/snooze the incidents and add the note into that.
 
 ## Getting Started
 
@@ -34,13 +34,13 @@ Following groups are provided by Ballerina to interact with different API groups
 - Download and install [Ballerina](https://ballerinalang.org/downloads/).
 - Get the [REST API Key](https://support.pagerduty.com/docs/generating-api-keys#section-rest-api-keys).
 
->Note: According to the account's role permission, The user API token can support all the functionality what we have but
-> the account API token can't access the operations which to be need the `from email Id`.They are `createUser`, `createIncident`,
-> `createEscalationPolicy`, `createSchedule`, `manageIncidents`, `updateIncident` and `addNote`.
+>**Note:** According to the account's role permission, the user API token can support all the available functionality. However,
+> the account API token can't access the operations, which need the `from email Id`. They are `createUser`, `createIncident`,
+> `createEscalationPolicy`, `createSchedule`, `manageIncidents`, `updateIncident`, and `addNote`.
 
 ### Pull the Module
 
-Execute the below command to pull the pagerDuty module from Ballerina Central:
+Execute the below command to pull the `pagerDuty` module from Ballerina Central:
 
 ```ballerina
 $ ballerina pull ballerinax/pagerduty
@@ -48,7 +48,7 @@ $ ballerina pull ballerinax/pagerduty
 
 ## Sample
 
-The following is a simple Ballerina program that is used to receiving notification from configure the profile.
+The following is a simple Ballerina program, which is used to receive notifications on configuring the profile.
 
 ```ballerina
 import ballerina/io;

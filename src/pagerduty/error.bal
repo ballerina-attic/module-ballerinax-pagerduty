@@ -23,8 +23,8 @@ type Detail record {
     error cause?;
 };
 
-# Represents the pagerduty error reason.
+# Represents the PagerDuty error reason.
 public const PAGERDUTY_ERROR = "(ballerinax/pagerduty)Error";
 
-# Represents the pagerduty  error type with details.
+# Represents the PagerDuty error type with details.
 public type Error error<PAGERDUTY_ERROR, Detail>;

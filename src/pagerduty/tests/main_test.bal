@@ -19,7 +19,7 @@ import ballerina/time;
 
 Configuration pagerdutyConfig = {
     oauth2Config: {
-        accessToken: "mL7WHpakjRZshG7qJiey"
+        accessToken: <API_TOKEN>
     }
 };
 
