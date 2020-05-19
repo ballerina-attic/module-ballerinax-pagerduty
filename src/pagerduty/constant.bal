@@ -18,6 +18,7 @@ public const string BASE_URL = "https://api.pagerduty.com";
 public const string AUTH_SCHEME_TOKEN = "Token";
 public const string CURRENT_USER_PATH = "/users/me";
 public const string  SCHEDULE_PATH = "/schedules";
+public const string  TOKEN = " token=";
 public const string USERS_PATH = "/users";
 public const string ESCALATION_POLICES_PATH = "/escalation_policies";
 public const string USERS= "users";

@@ -69,7 +69,7 @@ function createResError(error errorResponse) returns Error {
 function createError(http:Response resp) returns  @tainted Error {
     map<json> output = <map<json>>resp.getJsonPayload();
     return Error(message =  "Error received from the pagerduty server ", cause = error(PAGERDUTY_ERROR,
-                 message = output["error"].toString());
+                 message = output["error"].toString()));
 }
 
 function setJsonPayload(map<json>|error|json[] data, http:Request request, string key) {
