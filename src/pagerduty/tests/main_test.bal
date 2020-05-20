@@ -17,19 +17,13 @@
 import ballerina/test;
 import ballerina/time;
 
-Configuration pagerdutyConfig = {
-    oauth2Config: {
-        accessToken: <API_TOKEN>
-    }
-};
-
-Account pagerduty = new(pagerdutyConfig);
-Users users = pagerduty.getUsers();
-EscalationPolicies escalations = pagerduty.getEscalationPolicies();
-Schedules schedules = pagerduty.getSchedules();
-Services services = pagerduty.getServices();
-Extensions extensions = pagerduty.getExtensions();
-Incidents incidents = pagerduty.getIncidents();
+Account pagerduty = new("PERSONAL_USER_TOKEN");
+UserClient userClient = pagerduty.getUserClient();
+EscalationPolicyClient escalationClient = pagerduty.getEscalationPolicyClient();
+ScheduleClient scheduleClient = pagerduty.getScheduleClient();
+ServiceClient serviceClient = pagerduty.getServiceClient();
+ExtensionClient extensionClient = pagerduty.getExtensionClient();
+IncidentClient incidentClient = pagerduty.getIncidentClient();
 
 string userId = "";
 string contactId = "";
@@ -40,26 +34,24 @@ string scheduleId = "";
 string integrationId = "";
 string incidentId = "";
 string extensionId = "";
-User populatedUser = {"type": "user", "name": "peter", "email": "ashacffedf@gmail.com"};
-ContactMethod populatedContactMethod = {"type": "sms", "address": ""};
-EscalationPolicy populatedEscalationPolicy = {"type": "sms", "id": "", "name": "", "escalationRules": []};
-Service populatedService = { "name": "service", "escalationPolicy": populatedEscalationPolicy};
-Integration populatedIntegration = { "type": "keynoteInboundIntegration"};
-Incident populatedIncident = { "type": "extension", "title": "", "service": {"name": "service",
-                              "escalationPolicy": {"type": "sms", "id": "", "name": "", "escalationRules": []}}};
-Extension populatedExtension = {"type": "extension", "name": "", "services": [], "extensionSchema": {
-    "type": "extension", "id": ""}};
-
+User createdUser = {'type: "user", name: "", email: "example@gmail.com"};
+ContactMethod createdContactMethod = {'type: "sms", address: ""};
+EscalationPolicy createdEscalationPolicy = {'type: "sms", id: "", name: "", escalationRules: []};
+Service createdService = { name: "service", escalationPolicy: createdEscalationPolicy};
+Integration createdIntegration = { 'type: "keynoteInboundIntegration"};
+Incident createdIncident = { 'type: "extension", title: "", 'service: {name: "service",
+                              escalationPolicy: {'type: "sms", id: "", name: "", escalationRules: []}}};
+Extension createdExtension = { 'type: "extension", name: "", 'services: [], extensionSchema:
+                               {'type: "extension", id: ""}};
 @test:Config {}
 function testCreateUser() {
-    User user =  {"type": "user", "name": "peter", "email": "ashakalai@gmail.com"};
-    var response = users->createUser(<@untained> user);
+    User user =  {'type: "user", name: "dsa", email: "ex@gmail.com"};
+    var response = userClient->createUser(user);
     if(response is error) {
         test:assertFail(msg = response.toString());
     } else {
-        userId = <@untained> user.get("id").toString();
-        populatedUser = <@untained> user;
-        test:assertTrue(userId.length() > 0);
+        userId = response.get("id").toString();
+        createdUser = response;
     }
 }
 
@@ -67,15 +59,13 @@ function testCreateUser() {
     dependsOn: ["testCreateUser"]
 }
 function testCreateContactMethod() {
-    ContactMethod contactMethod = { "type": "sms","summary": "Home","label": "home","countryCode": 1,
-                                    "address": "5766792895"};
-    var response = users->createContactMethod(userId, <@untained> contactMethod);
+    ContactMethod contactMethod = { 'type: "sms", address: "5678906547"};
+    var response = userClient->createContactMethod(userId, contactMethod);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     } else {
-        populatedContactMethod = <@untained> contactMethod;
-        contactId = <@untained>  contactMethod.get("id").toString();
-        test:assertTrue(contactId.length() > 0);
+        createdContactMethod = response;
+        contactId = response.get("id").toString();
     }
 }
 
@@ -83,16 +73,15 @@ function testCreateContactMethod() {
     dependsOn: ["testCreateContactMethod"]
 }
 function testCreateNotificationRule() {
-    NotificationRule rule = { "startDelayInMinutes": 1,
-                              "contactMethod" : populatedContactMethod,
-                              "urgency": "high",
+    NotificationRule rule = { startDelayInMinutes: 1,
+                              contactMethod : createdContactMethod,
+                              urgency: "high",
                               'type: "assignmentNotificationRule"};
-    var response = users->createNotificationRule(userId, <@untained> rule);
+    var response = userClient->createNotificationRule(userId, rule);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     } else {
-        ruleId = <@untained> rule.get("id").toString();
-        test:assertTrue(<@untained> ruleId.length() > 0);
+        ruleId = response.get("id").toString();
     }
 }
 
@@ -100,9 +89,9 @@ function testCreateNotificationRule() {
     dependsOn: ["testCreateContactMethod"]
 }
 function testGetContactMethods() {
-    var response = users->getContactMethods(userId);
+    var response = userClient->getContactMethods(userId);
     if (response is ContactMethod[]) {
-        test:assertTrue(<@untained> response.length() > 1);
+        test:assertTrue(response.length() > 1);
     } else {
         test:assertFail(msg = response.toString());
     }
@@ -112,9 +101,9 @@ function testGetContactMethods() {
     dependsOn: ["testCreateContactMethod"]
 }
 function testGetUseNotificationRules() {
-    var response = users->getUserNotificationRules(userId);
+    var response = userClient->getUserNotificationRules(userId);
     if (response is NotificationRule[]) {
-        test:assertTrue(<@untained> response.length() > 0);
+        test:assertTrue(response.length() > 0);
     } else {
         test:assertFail(msg = response.toString());
     }
@@ -124,9 +113,9 @@ function testGetUseNotificationRules() {
     dependsOn: ["testCreateUser"]
 }
 function testGetUsers() {
-    var response = users->getUsers();
+    var response = userClient->getUsers();
     if (response is User[]) {
-        test:assertTrue(<@untained> response.length() > 0);
+        test:assertTrue(response.length() > 0);
     } else {
         test:assertFail(msg = response.toString());
     }
@@ -136,9 +125,9 @@ function testGetUsers() {
     dependsOn: ["testCreateUser"]
 }
 function testGetUserById() {
-    var response = users->getUserById(userId);
+    var response = userClient->getUserById(userId);
     if (response is User) {
-        test:assertTrue(<@untained> response.length() > 0);
+        test:assertTrue(response.length() > 0);
     } else {
         test:assertFail(msg = response.toString());
     }
@@ -148,7 +137,7 @@ function testGetUserById() {
     dependsOn: ["testCreateContactMethod"]
 }
 function testGetContactMethodById() {
-    var response = users->getUserContactMethodById(contactId, userId);
+    var response = userClient->getUserContactMethodById(contactId, userId);
     if (response is Error) {
        test:assertFail(msg = response.toString());
     }
@@ -158,7 +147,7 @@ function testGetContactMethodById() {
     dependsOn: ["testGetUseNotificationRules"]
 }
 function testGetNotificationRuleById() {
-    var response = users->getUserNotificationRuleById(ruleId, userId);
+    var response = userClient->getUserNotificationRuleById(ruleId, userId);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     }
@@ -168,19 +157,19 @@ function testGetNotificationRuleById() {
     dependsOn: ["testGetUseNotificationRules"]
 }
 function testCreateEscalationPolicy() {
-    EscalationPolicy escalationPolicy = { "type": "escalationPolicy",
-                                           "name": "Escalation Policyeed for Test",
-                                           "escalationRules": [{
-                                                    "escalationDelayInMinutes": 30,
-                                                    "targets": [{"id": userId, "type": "user"}]
+    EscalationPolicy escalationPolicy = { 'type: "escalationPolicy",
+                                           name: "Escalation Policy for Test",
+                                           escalationRules: [{
+                                                    escalationDelayInMinutes: 30,
+                                                    targets: [{id: userId, 'type: "user"}]
                                            }]
                                         };
-    var response = escalations->createEscalationPolicy(<@untained> escalationPolicy);
+    var response = escalationClient->create(escalationPolicy);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     } else {
-        policyId = <@untained> escalationPolicy.get("id").toString();
-        populatedEscalationPolicy = <@untained> escalationPolicy;
+        policyId = response.get("id").toString();
+        createdEscalationPolicy = response;
         test:assertTrue(policyId.length() > 0);
     }
 }
@@ -189,10 +178,8 @@ function testCreateEscalationPolicy() {
     dependsOn: ["testCreateEscalationPolicy"]
 }
 function testGetEscalationPolicyById() {
-    var response = escalations->getEscalationPolicyById(<@untained> policyId);
-    if (response is EscalationPolicy) {
-        test:assertEquals(response.name, populatedEscalationPolicy.name);
-    } else {
+    var response = escalationClient->getById(policyId);
+    if (response is Error) {
         test:assertFail(msg = response.toString());
     }
 }
@@ -201,10 +188,10 @@ function testGetEscalationPolicyById() {
     dependsOn: ["testGetEscalationPolicyById"]
 }
 function testUpdateEscalationPolicy() {
-    populatedEscalationPolicy.description = "Update escalateionee policy";
-    populatedEscalationPolicy.name = "Updated escalationeee policy";
-    EscalationPolicy input = populatedEscalationPolicy;
-    var response = escalations->updateEscalationPolicy(policyId, <@untained> input);
+    createdEscalationPolicy.description = "Update escalation policy";
+    createdEscalationPolicy.name = "Updated escalation policy";
+    EscalationPolicy input = createdEscalationPolicy;
+    var response = escalationClient->update(policyId, input);
     if (response is Error) {
        test:assertFail(msg = response.toString());
     }
@@ -215,21 +202,21 @@ function testUpdateEscalationPolicy() {
 }
 function testCreateSchedule() {
     time:Time time = time:currentTime();
-    Schedule schedule = {"type": "schedule",
-                         "timeZone": "Asia/Colombo",
-                         "scheduleLayers": [
+    Schedule schedule = {'type: "schedule",
+                         timeZone: "Asia/Colombo",
+                         scheduleLayers: [
                              {
-                                "start": time,
-                                "rotationTurnLengthInSeconds": 86400,
-                                "rotationVirtualStart": time,
-                                 "users": [populatedUser]
+                                'start: time,
+                                rotationTurnLengthInSeconds: 86400,
+                                rotationVirtualStart: time,
+                                users: [createdUser]
                              }
                          ]};
-    var response = schedules->createSchedule(<@untained> schedule);
+    var response = scheduleClient->create(schedule);
     if (response is Error) {
        test:assertFail(msg = response.toString());
     } else {
-        scheduleId = <@untained> schedule.get("id").toString();
+        scheduleId = response.get("id").toString();
     }
 }
 
@@ -237,7 +224,7 @@ function testCreateSchedule() {
     dependsOn: ["testCreateSchedule"]
 }
 function testGetSchedules() {
-    var response = schedules->getSchedules();
+    var response = scheduleClient->get();
     if (response is Schedule[]) {
         test:assertTrue(response.length() > 0);
     } else {
@@ -249,7 +236,7 @@ function testGetSchedules() {
     dependsOn: ["testCreateSchedule"]
 }
 function testGetScheduleById() {
-    var response = schedules->getScheduleById(scheduleId);
+    var response = scheduleClient->getById(scheduleId);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     }
@@ -259,16 +246,16 @@ function testGetScheduleById() {
     dependsOn: ["testUpdateEscalationPolicy"]
 }
 function testCreateService() {
-    Service serv = { "name": "New seeeervices",
-                     "escalationPolicy":
-                            populatedEscalationPolicy
+    Service serv = { name: "New service",
+                     escalationPolicy:
+                            createdEscalationPolicy
                      };
-    var response = services->createService(<@untained> serv);
+    var response = serviceClient->createService(serv);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     } else {
-        serviceId = <@untained> serv.get("id").toString();
-        populatedService = <@untained> serv;
+        serviceId = response.get("id").toString();
+        createdService = response;
         test:assertTrue(serviceId.length() > 0);
     }
 }
@@ -277,9 +264,9 @@ function testCreateService() {
     dependsOn: ["testCreateService"]
 }
 function testUpdateService() {
-    populatedService.name ="Updated seeeervices";
-    Service updateService = populatedService;
-    var response = services->updateService(serviceId, <@untained> updateService);
+    createdService.name ="Updated services";
+    Service updateService = createdService;
+    var response = serviceClient->updateService(serviceId, updateService);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     }
@@ -290,16 +277,15 @@ function testUpdateService() {
 }
 function testCreateIntegration() {
     Integration integration = {
-                   "type": "keynoteInboundIntegration",
-                   "email": "test@wso34.pagerduty.com"
+                   'type: "keynoteInboundIntegration",
+                   email: "test@wsqsd.pagerduty.com"
                  };
-    var response = services->createIntegration(serviceId, <@untained> integration);
+    var response = serviceClient->createIntegration(serviceId, integration);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     } else {
-        integrationId = <@untained> integration.get("id").toString();
-        populatedIntegration = <@untained> integration;
-        test:assertTrue(integrationId.length() > 0);
+        integrationId = response.get("id").toString();
+        createdIntegration = response;
     }
 }
 
@@ -307,9 +293,9 @@ function testCreateIntegration() {
     dependsOn: ["testCreateIntegration"]
 }
 function testUpdateIntegration() {
-    populatedIntegration.email = "test4e1@wso34.pagerduty.com";
-    Integration updateIntegration = populatedIntegration;
-    var response = services->updateIntegration(integrationId, serviceId, <@untained> updateIntegration);
+    createdIntegration.email = "test4e1@wsqsd.pagerduty.com";
+    Integration updateIntegration = createdIntegration;
+    var response = serviceClient->updateIntegration(integrationId, serviceId, updateIntegration);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     }
@@ -319,26 +305,25 @@ function testUpdateIntegration() {
     dependsOn: ["testCreateService"]
 }
 function testCreateExtension() {
-    Service updateService = populatedService;
-    Extension extension = {
-                               "type": "extension",
-                               "name": "webhook",
-                               "endpointUrl": "http://8bac231a.ngrok.io/webhooks",
-                               "extensionSchema": {
-                                    "id": "PJFWPEP",
-                                    "type": "extensionSchemaReference",
-                                    "summary": "Generic V2 Webhook"
-                               },
-                               "services": [
-                                    populatedService
-                               ]
+    Service updateService = createdService;
+    Extension extension = { 'type: "extension",
+                             name: "webhook",
+                             endpointUrl: "http://8bac231a.ngrok.io/webhooks",
+                             extensionSchema: {
+                                    id: "PJFWPEP",
+                                    'type: "extensionSchemaReference",
+                                    summary: "Generic V2 Webhook"
+                             },
+                             'services: [
+                                    createdService
+                             ]
                             };
-    var response = extensions->createExtension(<@untained> extension);
+    var response = extensionClient->create(extension);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     } else {
-        extensionId = <@untained> extension.get("id").toString();
-        populatedExtension = <@untained> extension;
+        extensionId = response.get("id").toString();
+        createdExtension = response;
         test:assertTrue(extensionId.length() > 0);
     }
 }
@@ -347,9 +332,9 @@ function testCreateExtension() {
     dependsOn: ["testCreateExtension"]
 }
 function testUpdateExtension() {
-    populatedExtension.name = "New Webhook";
-    Extension updateExtension = populatedExtension;
-    var response = extensions->updateExtension(extensionId, <@untained> updateExtension);
+    createdExtension.name = "New Webhook";
+    Extension updateExtension = createdExtension;
+    var response = extensionClient->update(extensionId, updateExtension);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     }
@@ -359,7 +344,7 @@ function testUpdateExtension() {
     dependsOn: ["testCreateExtension"]
 }
 function testGetExtensionById() {
-    var response = extensions->getExtensionById(extensionId);
+    var response = extensionClient->getById(extensionId);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     }
@@ -369,18 +354,17 @@ function testGetExtensionById() {
     dependsOn: ["testCreateService"]
 }
 function testCreateIncident() {
-    Service updateService = populatedService;
+    Service updateService = createdService;
     Incident incident = {
-                          "type": "incident",
-                          "title": "Test",
-                          "service": updateService};
-    var response = incidents->createIncident(<@untained> incident);
+                          'type: "incident",
+                          title: "Test",
+                          'service: updateService};
+    var response = incidentClient->createIncident(incident);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     } else {
-        incidentId = <@untained> incident.get("id").toString();
-        populatedIncident = <@untained> incident;
-        test:assertTrue(incidentId.length() > 0);
+        incidentId = response.get("id").toString();
+        createdIncident = response;
     }
 }
 
@@ -388,7 +372,7 @@ function testCreateIncident() {
     dependsOn: ["testCreateIncident"]
 }
 function testGetIncidentById() {
-    var response = incidents->getIncidentById(incidentId);
+    var response = incidentClient->getIncidentById(incidentId);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     }
@@ -397,11 +381,11 @@ function testGetIncidentById() {
 @test:Config {
      dependsOn: ["testCreateIncident"]
  }
- function testManageIncidents() {
-     populatedIncident.status = "acknowledged";
-     populatedIncident.assignments[1].assignee = populatedUser;
-     Incident[] incident = [populatedIncident];
-     var response = incidents->manageIncidents(incident);
+ function testUpdateIncidents() {
+     createdIncident.status = "acknowledged";
+     createdIncident.assignments[1].assignee = createdUser;
+     Incident[] incident = [createdIncident];
+     var response = incidentClient->updateIncidents(incident);
      if (response is Error) {
          test:assertFail(msg = response.toString());
      }
@@ -412,17 +396,17 @@ function testGetIncidentById() {
 }
 function testAddNote() {
     Note note = {"content": "Firefighters are on the scene."};
-    var response = incidents->addNote(incidentId, <@untained> note);
+    var response = incidentClient->addNote(incidentId, note);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     }
 }
 
  @test:Config {
-     dependsOn: ["testManageIncidents"]
+     dependsOn: ["testUpdateIncidents"]
  }
  function testSnoozeIncident() {
-     var response = incidents->snoozeIncident(incidentId, 3600);
+     var response = incidentClient->snoozeIncident(incidentId, 3600);
      if (response is Error) {
          test:assertFail(msg = response.toString());
      }
@@ -431,10 +415,10 @@ function testAddNote() {
 @test:Config {
     dependsOn: ["testSnoozeIncident"]
 }
-function testUpdateIncidents() {
-    populatedIncident.status = "resolved";
-    Incident incident = populatedIncident;
-    var response = incidents->updateIncident(incidentId, incident);
+function testUpdateIncident() {
+    createdIncident.status = "resolved";
+    Incident incident = createdIncident;
+    var response = incidentClient->updateIncident(incidentId, incident);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     }
@@ -445,7 +429,7 @@ function testUpdateIncidents() {
                 "testGetNotificationRuleById", "testGetUseNotificationRules"]
 }
 function tesDeleteNotificationRule() {
-    var response = users->deleteNotificationRule(ruleId, userId);
+    var response = userClient->deleteNotificationRule(ruleId, userId);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     }
@@ -455,7 +439,7 @@ function tesDeleteNotificationRule() {
     dependsOn: ["testDeleteUser", "testUpdateIntegration"]
 }
 function testDeleteService() {
-    var response = services->deleteService(serviceId);
+    var response = serviceClient->deleteService(serviceId);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     }
@@ -465,7 +449,7 @@ function testDeleteService() {
     dependsOn: ["testGetSchedules", "testCreateSchedule", "testGetScheduleById"]
 }
 function tesDeleteSchedule() {
-    var response = schedules->deleteSchedule(scheduleId);
+    var response = scheduleClient->delete(scheduleId);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     }
@@ -475,7 +459,7 @@ function tesDeleteSchedule() {
     dependsOn: ["testGetExtensionById", "testUpdateExtension"]
 }
 function tesDeleteExtension() {
-    var response = extensions->deleteExtension(extensionId);
+    var response = extensionClient->delete(extensionId);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     }
@@ -486,7 +470,7 @@ function tesDeleteExtension() {
                 "testGetNotificationRuleById", "tesDeleteNotificationRule", "testGetContactMethods"]
 }
 function TestDeleteContactMethod() {
-    var response = users->deleteContactMethod(contactId, userId);
+    var response = userClient->deleteContactMethod(contactId, userId);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     }
@@ -498,7 +482,7 @@ function TestDeleteContactMethod() {
                 "testGetUseNotificationRules", "tesDeleteNotificationRule", "testCreateSchedule"]
 }
 function testDeleteUser() {
-    var response = users->deleteUser(userId);
+    var response = userClient->deleteUser(userId);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     }
@@ -508,7 +492,7 @@ function testDeleteUser() {
     dependsOn: ["testDeleteService", "testUpdateService", "testUpdateExtension", "testCreateSchedule"]
 }
 function testDeleteEscalationPolicy() {
-    var response = escalations->deleteEscalationPolicy(policyId);
+    var response = escalationClient->delete(policyId);
     if (response is Error) {
         test:assertFail(msg = response.toString());
     }

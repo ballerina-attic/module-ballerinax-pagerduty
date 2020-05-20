@@ -18,255 +18,210 @@ import ballerina/oauth2;
 import ballerina/http;
 import ballerina/log;
 
-# The `Account` used to initiate the contact with pagerDuty API and create the all sub clients.
+# The `pagerduty:Account` used to initiate the contact with pagerDuty API and create the all sub clients.
 #
 # + pagerduty - The `Account` for the pagerduty
-# + emailId - The email id for the logged in user
-# + users - The `Users` client
-# + escalationPolicies - The `EscalationPolicies` client
-# + schedules - The `Schedules` client
-# + extensions - The `Extensions` client
-# + incidents - The `Incidents` client
+# + userClient - The `UserClient` client
+# + escalationPolicyClient - The `EscalationPolicyClient` client
+# + scheduleClient - The `ScheduleClient` client
+# + extensionClient - The `ExtensionClient` client
+# + incidentClient - The `IncidentClient` client
+# + emailId - The email id for the logged-in user
 public type Account object {
 
     private http:Client pagerduty;
-    private Users users;
+    private UserClient userClient;
+    private EscalationPolicyClient escalationPolicyClient;
+    private ScheduleClient scheduleClient;
+    private ServiceClient serviceClient;
+    private ExtensionClient extensionClient;
+    private IncidentClient incidentClient;
     private string emailId = "";
-    private EscalationPolicies escalationPolicies;
-    private Schedules schedules;
-    private Services services;
-    private Extensions extensions;
-    private Incidents incidents;
 
-    public function __init(Configuration config) {
-        oauth2:OutboundOAuth2Provider oauth2Provider = new(config.oauth2Config);
+    public function __init(string apiToken) {
+        oauth2:OutboundOAuth2Provider oauth2Provider = new({accessToken: apiToken});
         TokenAuthHandler oauth2Handler = new(oauth2Provider);
         http:ClientConfiguration accountConfig = {
             auth: {
                 authHandler: oauth2Handler
             }
         };
-        self.pagerduty = new(BASE_URL, config = accountConfig);
-        self.users = new(self.pagerduty);
-        self.escalationPolicies = new(self.pagerduty);
-        self.schedules = new(self.pagerduty);
-        self.services = new(self.pagerduty);
-        self.extensions = new(self.pagerduty);
-        self.incidents = new(self.pagerduty);
+        self.pagerduty = new(BASE_URL, config = {auth: {authHandler: oauth2Handler}});
+        self.userClient = new(self.pagerduty);
+        self.escalationPolicyClient = new(self.pagerduty);
+        self.scheduleClient = new(self.pagerduty);
+        self.serviceClient = new(self.pagerduty);
+        self.extensionClient = new(self.pagerduty);
+        self.incidentClient = new(self.pagerduty);
 
+        // Sets logged-in emailID to `pagerDuty:UserClient`, `pagerDuty:EscalationPolicies` and
+        // `pagerDuty:Incidents` clients.
         string path = CURRENT_USER_PATH;
         json|Error resp = get(self.pagerduty, path);
         if (resp is json) {
             map<json> mapJsonRes = <map<json>> resp;
             map<json> user = <map<json>>mapJsonRes[USER];
-            self.users.emailId = user[EMAIL].toString();
-            self.escalationPolicies.emailId = user[EMAIL].toString();
-            self.incidents.emailId = user[EMAIL].toString();
+            self.emailId = user[EMAIL].toString();
+            self.userClient.emailId = self.emailId;
+            self.escalationPolicyClient.emailId = self.emailId;
+            self.incidentClient.emailId = self.emailId;
         } else {
-            log:printError("Error occurred while getting the logged-in user email ID: " , resp);
+            log:printError("Error occurred while getting the logged-in user email ID" , resp);
         }
     }
 
-    # Retrieves the `Users` client.
+    # Retrieves the `pagerduty:UserClient`.
     # ```ballerina
-    # pagerduty:Users users = pagerduty.getUsers();
+    # pagerduty:UserClient userClient = pagerduty.getUserClient();
     # ```
     #
-    # + return - The `Users` client
-    public function getUsers() returns Users {
-        return self.users;
+    # + return - The `pagerduty:UserClient` client
+    public function getUserClient() returns UserClient {
+        return self.userClient;
     }
 
-    # Retrieves the `EscalationPolicies` client.
+    # Retrieves the `pagerduty:EscalationPolicies` client.
     # ```ballerina
     # pagerduty:EscalationPolicies escalations = pagerduty.getEscalationPolicies();
     # ```
     #
-    # + return - The `EscalationPolicies` client
-    public function getEscalationPolicies() returns EscalationPolicies {
-        return self.escalationPolicies;
+    # + return - The `pagerduty:EscalationPolicies` client
+    public function getEscalationPolicyClient() returns EscalationPolicyClient {
+        return self.escalationPolicyClient;
     }
 
-    # Retrieve the `Schedules` client.
+    # Retrieve the `pagerduty:Schedules` client.
     # ```ballerina
     # pagerduty:Schedules schedules = pagerduty.getSchedules();
     # ```
     #
-    # + return - The `Schedules` client
-    public function getSchedules() returns Schedules {
-        return self.schedules;
+    # + return - The `pagerduty:Schedules` client
+    public function getScheduleClient() returns ScheduleClient {
+        return self.scheduleClient;
     }
 
-    # Retrieves the `Services` client.
+    # Retrieves the `pagerduty:Services` client.
     # ```ballerina
     # pagerduty:Services services = pagerduty.getServices();
     # ```
     #
-    # + return - The `Services` client
-    public function getServices() returns Services {
-        return self.services;
+    # + return - The `pagerduty:Services` client
+    public function getServiceClient() returns ServiceClient {
+        return self.serviceClient;
     }
 
-    # Retrieves the `Extensions` client.
+    # Retrieves the `pagerduty:Extensions` client.
     # ```ballerina
     # pagerduty:Extensions extensions = pagerduty.getExtensions();
     # ```
     #
-    # + return - The `Extensions` client
-    public function getExtensions() returns Extensions {
-        return self.extensions;
+    # + return - The `pagerduty:Extensions` client
+    public function getExtensionClient() returns ExtensionClient {
+        return self.extensionClient;
     }
 
-    # Retrieves the `Incidents` client.
+    # Retrieves the `pagerduty:Incidents` client.
     # ```ballerina
     # pagerduty:Incidents incidents = pagerduty.getIncidents();
     # ```
     #
-    # + return - The `Incidents` client
-    public function getIncidents() returns Incidents {
-        return self.incidents;
+    # + return - The `pagerduty:Incidents` client
+    public function getIncidentClient() returns IncidentClient {
+        return self.incidentClient;
     }
 };
 
-# The `User` used to create/get the User, Contact method and Notification rule.
+# The `pagerduty:UserClient` used to create/get/delete the `User`/`Contact method`/ `Notification rule`.
 #
-# + users - The `Users` client
+# + userClient - The `pagerduty:UserClient`
 # + emailId - The email id for the logged-in user
-public type Users client object {
+public type UserClient client object {
 
-    private http:Client users;
+    private http:Client userClient;
     public string emailId = "";
 
     function __init(http:Client pagerDuty) {
-        self.users = pagerDuty;
+        self.userClient = pagerDuty;
     }
 
     # Creates a new user.
     # ```ballerina
-    # pagerduty:User user = {"type": "user", "name": "peter", "email": "kalai@gmail.com"};
-    # pagerduty:Error? response = users->createUser(user);
+    # pagerduty:User user = {'type: "user", name: "", email: ""};
+    # pagerduty:User|pagerduty:Error response = users->createUser(user);
     # ```
     #
-    # + user -  The user which to be created
-    # + return - A `pagerduty:Error` if any error occurred or else `nil`
-    public remote function createUser(@tainted User user) returns @tainted Error? {
-        string path = USERS_PATH;
-        http:Request request = new;
-        request.setHeader(FROM, self.emailId);
-        setJsonPayload(map<json>.constructFrom(userToPayload(user)), request, USER);
-        map<json>|Error resp = post(self.users, request, path);
-        if (resp is Error) {
-            return resp;
-        } else {
-            convertToUser(resp[USER], user);
+    # + user -  The user, which to be created
+    # + return - A `pagerduty:User` or else a `pagerduty:Error` if any error occurred
+    public remote function createUser(User user) returns User|Error {
+        if (self.emailId == "") {
+            return <@untainted> Error(message = "Can't access the `createUser` operation without " +
+                                      "logged-in user email id", cause = getError());
         }
+        return <@untainted> createUser(self.userClient, user, self.emailId);
     }
 
     # Creates a new contact method for the User.
     # ```ballerina
-    # pagerduty:ContactMethod contactMethod = {"type": "sms", "address": ""};
-    # pagerduty:Error? response = users->createContactMethod(contactMethod);
+    # pagerduty:ContactMethod contactMethod = {'type: "sms", address: ""};
+    # pagerduty:ContactMethod|pagerduty:Error response = users->createContactMethod(contactMethod);
     # ```
     #
-    # + contactMethod -  The contact method to be created
+    # + contactMethod -  The contact method, which to be created
     # + userId -  The ID of the user
-    # + return - A `pagerduty:Error` if any error occurred or else `nil`
-    public remote function createContactMethod(string userId, @tainted ContactMethod contactMethod)
-                                               returns @tainted Error? {
-        string path = USERS_PATH + BACK_SLASH + userId + BACK_SLASH + CONTACT_METHODS;
-        http:Request request = new;
-        setJsonPayload(map<json>.constructFrom(contactMethodToPayload(contactMethod)), request, CONTACT_METHOD);
-        map<json>|Error resp = post(self.users, request, path);
-        if (resp is Error) {
-            return resp;
-        } else {
-            convertToContactMethod(resp[CONTACT_METHOD], contactMethod);
-        }
+    # + return - A `pagerduty:ContactMethod` or else a `pagerduty:Error` if any error occurred
+    public remote function createContactMethod(string userId, ContactMethod contactMethod)
+                                               returns ContactMethod|Error {
+        return <@untainted> createContactMethod(self.userClient, userId, contactMethod);
     }
 
     # Creates a user notification rule.
     # ```ballerina
-    # pagerduty:NotificationRule rule = { "startDelayInMinutes": 1,"contactMethod" : populatedContactMethod,
-    #                                     "urgency": "high", 'type: "assignmentNotificationRule"};
-    # pagerduty:Error? response = users->createNotificationRule(rule);
+    # pagerduty:NotificationRule rule = { startDelayInMinutes: 1, contactMethod: populatedContactMethod,
+    #                                     urgency: "high", 'type: "assignmentNotificationRule"};
+    # pagerduty:NotificationRule|pagerduty:Error response = users->createNotificationRule(rule);
     # ```
     #
     # + rule -  The notification rule to be created.
-    # + userId -  The ID of the user which to be added the notification rule
-    # + return - A `pagerduty:Error` if any error  occurred or else `nil`
-    public remote function createNotificationRule(string userId, @tainted NotificationRule rule)
-                                                  returns @tainted Error? {
-        string path = USERS_PATH + BACK_SLASH + userId + BACK_SLASH + NOTIFICATION_RULES;
-        http:Request request = new;
-        setJsonPayload(map<json>.constructFrom(notificationRuleToPayload(rule)), request, NOTIFICATION_RULE);
-        map<json>|Error resp = post(self.users, request, path);
-        if (resp is Error) {
-            return resp;
-        } else {
-            convertToNotificationRule(resp[NOTIFICATION_RULE], rule);
-        }
+    # + userId -  The ID of the user, which to be added the notification rule
+    # + return - A `pagerduty:NotificationRule` or else a `pagerduty:Error` if any error occurred
+    public remote function createNotificationRule(string userId, NotificationRule rule) returns NotificationRule|Error {
+        return <@untainted> createNotificationRule(self.userClient, userId, rule);
     }
 
     # Retrieves all contact methods for a given user.
     # ```ballerina
-    # pagerduty:Error? response = users->getContactMethods(<USER_ID>);
+    # pagerduty:ContactMethod[]|pagerduty:Error response = users->getContactMethods(<USER_ID>);
     # ```
     #
-    # + userId -  The ID of the user which to be added contact details
-    # + return - The list of contact methods or else a `pagerduty:Error` if any error occurred
-    public remote function getContactMethods(string userId) returns @tainted ContactMethod[]|Error {
-        string path = USERS_PATH + BACK_SLASH + userId + BACK_SLASH + CONTACT_METHODS;
-        json|Error jsonResponse = get(self.users, path);
-        if (jsonResponse is Error) {
-             return jsonResponse;
-        } else {
-             map<json> res = <map<json>>jsonResponse;
-             return convertToContactMethods(res);
-        }
+    # + userId -  The ID of the user, which to be added contact details
+    # + return - The list of `pagerduty:ContactMethod` or else a `pagerduty:Error` if any error occurred
+    public remote function getContactMethods(string userId) returns ContactMethod[]|Error {
+        return <@untainted> getContactMethods(self.userClient, userId);
     }
 
     # Retrieves all notification rules for a given user.
     # ```ballerina
-    # pagerduty:Error? response = users->getUserNotificationRules(<USER_ID>);
+    # pagerduty:NotificationRule[]:pagerduty:Error response = users->getUserNotificationRules(<USER_ID>);
     # ```
     #
     # + userId -  The ID of the user
-    # + return - A list of notification rules or else a `pagerduty:Error` if any error occurred
-    public remote function getUserNotificationRules(string userId) returns @tainted NotificationRule[]|Error {
-        string path = USERS_PATH + BACK_SLASH + userId + BACK_SLASH + NOTIFICATION_RULES;
-        json|Error jsonResponse = get(self.users, path);
-        if (jsonResponse is Error) {
-             return jsonResponse;
-        } else {
-             map<json> res = <map<json>>jsonResponse;
-             return convertToNotificationRules(res);
-        }
+    # + return - A list of `pagerduty:NotificationRule` or else a `pagerduty:Error` if any error occurred
+    public remote function getUserNotificationRules(string userId) returns NotificationRule[]|Error {
+        return <@untainted> getUserNotificationRules(self.userClient, userId);
     }
 
     # Retrieves all users, optionally filtered by a query and teamIds.
     # ```ballerina
-    # pagerduty:User[]|pagerduty:Error? response = users->getUsers();
+    # pagerduty:User[]|pagerduty:Error response = users->getUsers();
     # ```
     #
     # + query - The string value(eg: “john” ,“asd@gmail.com” or “k”) which is used to filter the users whose names or
     #           email addresses match the query
     # + teamIds - The set of  value of team IDs as a `string`(eg: "P45PSCE,PC6BQII") which is used to filter the
     #             users whose related to these teams
-    # + return - Users or else a `pagerduty:Error` if any error occured
-    public remote function getUsers(string query = "", string? teamIds = ()) returns @tainted User[]|Error {
-        string path = USERS_PATH;
-        if (teamIds is string) {
-            path = path + QUERY + query + TEAM_IDS + teamIds;
-        } else {
-            path = path + QUERY + query;
-        }
-        json|Error jsonResponse = get(self.users, path);
-        if (jsonResponse is Error) {
-            return jsonResponse;
-        } else {
-            map<json> res = <map<json>>jsonResponse;
-            return convertToUsers(res);
-        }
+    # + return - A set of `pagerduty:User` or else a `pagerduty:Error` if any error occured
+    public remote function getUsers(string query = "", string? teamIds = ()) returns User[]|Error {
+        return <@untainted> getUsers(self.userClient, query, teamIds);
     }
 
     # Retrieves details about an given user.
@@ -275,40 +230,22 @@ public type Users client object {
     # ```
     #
     # + userId -  The ID of the user
-    # + return - The user or else a `pagerduty:Error` if any error  occurred
-    public remote function getUserById(string userId) returns @tainted User|Error {
-        string path = USERS_PATH + BACK_SLASH + userId;
-        json|Error jsonResponse = get(self.users, path);
-        if (jsonResponse is Error) {
-             return jsonResponse;
-        } else {
-             map<json> res = <map<json>>jsonResponse;
-             User user = {'type: USER, name: "", email: ""};
-             convertToUser(res[USER], user);
-             return user;
-        }
+    # + return - A `pagerduty:User` or else a `pagerduty:Error` if any error  occurred
+    public remote function getUserById(string userId) returns User|Error {
+        return <@untainted> getUserById(self.userClient, userId);
     }
 
     # Retrieves details about a given contact method id which is associated with the given uesr id.
     # ```ballerina
-    # pagerduty:User|pagerduty:Error? response = users->getUserContactMethodById(<CONTACT_METHOD_ID>, <USER_ID>);
+    # pagerduty:ContactMethod|pagerduty:Error? response = users->getUserContactMethodById(<CONTACT_METHOD_ID>,
+    #                                                                                     <USER_ID>);
     # ```
     #
     # + contactMethodId -  The ID of the contact meyhod
     # + userId -  The ID of the user
-    # + return - The contact method or else a `pagerduty:Error` if any error  occurred
-    public remote function getUserContactMethodById(string contactMethodId, string userId) returns @tainted
-                                                    ContactMethod|Error {
-        string path = USERS_PATH + BACK_SLASH + userId + BACK_SLASH + CONTACT_METHODS + BACK_SLASH + contactMethodId;
-        json|Error jsonResponse = get(self.users, path);
-        if (jsonResponse is Error) {
-             return jsonResponse;
-        } else {
-             map<json> res = <map<json>>jsonResponse;
-             ContactMethod contactMethod = {'type: "sms", "address": ""};
-             convertToContactMethod(res[CONTACT_METHOD], contactMethod);
-             return contactMethod;
-        }
+    # + return - A `pagerduty:ContactMethod` or else a `pagerduty:Error` if any error  occurred
+    public remote function getUserContactMethodById(string contactMethodId, string userId) returns ContactMethod|Error {
+        return <@untainted> getUserContactMethodById(self.userClient, contactMethodId, userId);
     }
 
     # Retrieves notification rule about a given notification rule id which is associated with the given uesr id.
@@ -319,20 +256,10 @@ public type Users client object {
     #
     # + notificationRuleId -  The ID of the notification rule
     # + userId -  The ID of the user
-    # + return - The notification rule or else a `pagerduty:Error` if any error  occurred
-    public remote function getUserNotificationRuleById(string notificationRuleId, string userId) returns @tainted
+    # + return - A `pagerduty:NotificationRule` or else a `pagerduty:Error` if any error  occurred
+    public remote function getUserNotificationRuleById(string notificationRuleId, string userId) returns
                                                     NotificationRule|Error {
-        string path = USERS_PATH + BACK_SLASH + userId + BACK_SLASH + NOTIFICATION_RULES + BACK_SLASH +
-                      notificationRuleId;
-        json|Error jsonResponse = get(self.users, path);
-        if (jsonResponse is Error) {
-             return jsonResponse;
-        } else {
-             NotificationRule rule = { "startDelayInMinutes": 1,"contactMethod": {"type": "sms","address": ""},
-                                       "urgency": "high",'type: "assignmentNotificationRule"};
-             convertToNotificationRule(<map<json>>jsonResponse, rule);
-             return rule;
-        }
+        return <@untainted> getUserNotificationRuleById(self.userClient, notificationRuleId, userId);
     }
 
     # Removes an existing user
@@ -342,12 +269,12 @@ public type Users client object {
     #
     # + userId -  The ID of the user
     # + return -  A `pagerduty:Error` if any error occurred or else `nil`
-    public remote function deleteUser(string userId) returns @tainted Error? {
+    public remote function deleteUser(string userId) returns Error? {
         string path = USERS_PATH + BACK_SLASH + userId;
-        return delete(self.users, path);
+        return <@untainted> delete(self.userClient, path);
     }
 
-    # Removes a user's contact method
+    #Removes an existing particular `ContactMethod` of the given user
     # ```ballerina
     # pagerduty:NotificationRule|pagerduty:Error? response = users->deleteContactMethod(<CONTACT_METHOD_ID>, <USER_ID>);
     # ```
@@ -355,11 +282,13 @@ public type Users client object {
     # + contactMethodId -  The ID of the contact meyhod
     # + userId -  The ID of the user
     # + return -  A `pagerduty:Error` if any error occurred or else `nil`
-    public remote function deleteContactMethod(string contactMethodId, string userId) returns @tainted Error? {
-        string path = USERS_PATH + BACK_SLASH + userId + BACK_SLASH + CONTACT_METHODS + BACK_SLASH + contactMethodId;
-        return delete(self.users, path);
+    public remote function deleteContactMethod(string contactMethodId, string userId) returns Error? {
+        string path = USERS_PATH + BACK_SLASH + userId + BACK_SLASH + CONTACT_METHODS_VAR + BACK_SLASH +
+                      contactMethodId;
+        return <@untainted> delete(self.userClient, path);
     }
-    # Retrieves notification rule about a given notification rule id which is associated with the given uesr id.
+
+    # Removes an existing particular `NotificationRule` of the given user
     # ```ballerina
     # pagerduty:NotificationRule|pagerduty:Error? response = users->deleteNotificationRule(<NOTIFICATION_RULE_ID>,
     #                                                                                       <USER_ID>);
@@ -368,48 +297,42 @@ public type Users client object {
     # + notificationRuleId -  The ID of the notification rule
     # + userId -  The ID of the user
     # + return -  A `pagerduty:Error` if any error occurred or else `nil`
-    public remote function deleteNotificationRule(string notificationRuleId, string userId) returns @tainted Error? {
-        string path = USERS_PATH + BACK_SLASH + userId + BACK_SLASH + NOTIFICATION_RULES + BACK_SLASH +
+    public remote function deleteNotificationRule(string notificationRuleId, string userId) returns Error? {
+        string path = USERS_PATH + BACK_SLASH + userId + BACK_SLASH + NOTIFICATION_RULES_VAR + BACK_SLASH +
                                       notificationRuleId;
-        return delete(self.users, path);
+        return <@untainted> delete(self.userClient, path);
     }
 };
 
-# The `EscalationPolicies` used to create/get/update/delete the escalation policy.
+# The `pagerduty:EscalationPolicies` used to create/get/update/delete the escalation policy.
 #
-# + escalationPolicies - The `EscalationPolicies` client
+# + escalationPolicyClient - The `pagerduty:EscalationPolicies`
 # + emailId - The email id for the logged-in user
-public type EscalationPolicies client object {
+public type EscalationPolicyClient client object {
 
-    private http:Client escalationPolicies;
+    private http:Client escalationPolicyClient;
     public string emailId = "";
 
     function __init(http:Client pagerDuty) {
-        self.escalationPolicies = pagerDuty;
+        self.escalationPolicyClient = pagerDuty;
     }
 
     # Creates a new escalation policy.
     # ```ballerina
-    # pagerduty:EscalationPolicy escalationPolicy = { "type": "escalationPolicy", "name": "Test",
-    #                                       "escalationRules": [{ "escalationDelayInMinutes": 30, "users": [
-    #                                       {"type": "user", "name": "asha", "email": "asha@gmail.com"}]}]};
-    # pagerduty:Error? response = escalations->createEscalationPolicy(<@untained> escalationPolicy);
+    # pagerduty:EscalationPolicy escalationPolicy = { 'type: "escalationPolicy", name: "Test",
+    #                                                  escalationRules: [{ "escalationDelayInMinutes": 30, users: [
+    #                                                  {'type: "user", name: "asha", email: "asha@gmail.com"}]}]};
+    # pagerduty:EscalationPolicy|pagerduty:Error response = escalations->createEscalationPolicy(escalationPolicy);
     # ```
     #
     # + escalationPolicy - The escalation policy to be created.
-    # + return - A `pagerduty:Error` if any error occurred or else `nil`
-    public remote function createEscalationPolicy(@tainted EscalationPolicy escalationPolicy) returns @tainted Error? {
-        string path = ESCALATION_POLICES_PATH;
-        http:Request request = new;
-        request.setHeader(FROM, self.emailId);
-        setJsonPayload(<@untained> map<json>.constructFrom(escalationPolicyToPayload(escalationPolicy)), request,
-                        ESCALATION_POLICY);
-        map<json>|Error resp = post(self.escalationPolicies, request, path);
-        if (resp is map<json>) {
-            return convertToEscalationPolicy(<map<json>>resp[ESCALATION_POLICY], escalationPolicy);
-        } else {
-            return resp;
+    # + return - A `pagerduty:EscalationPolicy` or else a `pagerduty:Error` if any error  occurred
+    public remote function create(EscalationPolicy escalationPolicy) returns EscalationPolicy|Error {
+        if (self.emailId == "") {
+            return Error(message = "Can't access the `createEscalationPolicy` operation without logged-in user" +
+                         " email id", cause = getError());
         }
+        return <@untainted> createEscalationPolicy(self.escalationPolicyClient, escalationPolicy, self.emailId);
     }
 
     # Gets informations about a given existing escalation policy and its rules.
@@ -417,23 +340,10 @@ public type EscalationPolicies client object {
     # pagerduty:EscalationPolicy|pagerduty:Error? response = escalationPolicies->getEscalationPolicyById(<POLICY_ID>);
     # ```
     #
-    # + escalationPolicyId -The escalation policy id which to be update
-    # + return - The escalation policy or else a `pagerduty:Error` if any error
-    #                  occurred
-    public remote function getEscalationPolicyById(string escalationPolicyId) returns @tainted EscalationPolicy|Error {
-        string path = ESCALATION_POLICES_PATH + BACK_SLASH + escalationPolicyId;
-        map<json>|Error response = get(self.escalationPolicies, path);
-        if (response is Error) {
-            return response;
-        } else {
-            EscalationPolicy escalationPolicy = { "type": "escalationPolicy", "name": "", "escalationRules": []};
-            Error? output = convertToEscalationPolicy(<map<json>>response[ESCALATION_POLICY], escalationPolicy);
-            if (output is Error) {
-                return  output;
-            } else {
-                return escalationPolicy;
-            }
-        }
+    # + escalationPolicyId -The escalation policy id, which to be update
+    # + return - A `pagerduty:EscalationPolicy` or else a `pagerduty:Error` if any error  occurred
+    public remote function getById(string escalationPolicyId) returns EscalationPolicy|Error {
+        return <@untainted> getEscalationPolicyById(self.escalationPolicyClient, escalationPolicyId);
     }
 
     # Updates an existing escalation policy and rules.
@@ -441,77 +351,58 @@ public type EscalationPolicies client object {
     # pagerduty:Error? response = escalationPolicies->updateEscalationPolicy(<POLICY_ID>, <ESCALATION_POLICY>);
     # ```
     #
-    # + escalationPolicyId -The escalation policy id which to be update
+    # + escalationPolicyId -The escalation policy id, which to be update
     # + escalationPolicy -The escalation policy details which to be update
-    # + return - A `pagerduty:Error` if any error occurred or else `nil`
-    public remote function updateEscalationPolicy(string escalationPolicyId, @tainted EscalationPolicy escalationPolicy)
-                                                  returns @tainted Error? {
-        string path = ESCALATION_POLICES_PATH + BACK_SLASH + escalationPolicyId;
-        http:Request request = new;
-        setJsonPayload(<@untained> map<json>.constructFrom(escalationPolicyToPayload(escalationPolicy)), request,
-                                                           ESCALATION_POLICY);
-        map<json>|Error resp = put(self.escalationPolicies, request, path);
-        if (resp is map<json>) {
-            return convertToEscalationPolicy(<map<json>>resp[ESCALATION_POLICY], escalationPolicy);
-        } else {
-            return resp;
-        }
+    # + return - A `pagerduty:EscalationPolicy` or else a `pagerduty:Error` if any error  occurred
+    public remote function update(string escalationPolicyId, EscalationPolicy escalationPolicy)
+                                 returns EscalationPolicy|Error {
+        return <@untainted> updateEscalationPolicy(self.escalationPolicyClient, escalationPolicyId, escalationPolicy);
     }
 
-    # Gets informations about a given existing escalation policy and its rules.
+    # Removes an existing `EscalationPolicy`
     # ```ballerina
     # pagerduty:EscalationPolicy|pagerduty:Error? response = escalationPolicies->getEscalationPolicyById(<POLICY_ID>);
     # ```
     #
-    # + escalationPolicyId -The escalation policy id which to be update
-    # + return - The escalation policy or else a `pagerduty:Error` if any error
-    #                  occurred
-    public remote function deleteEscalationPolicy(string escalationPolicyId) returns @tainted Error? {
+    # + escalationPolicyId -The escalation policy id, which to be update
+    # + return - A `pagerduty:Error` if any error occurred or `nil`
+    public remote function delete(string escalationPolicyId) returns Error? {
         string path = ESCALATION_POLICES_PATH + BACK_SLASH + escalationPolicyId;
-        return delete(self.escalationPolicies, path);
+        return <@untainted> delete(self.escalationPolicyClient, path);
     }
 
 };
 
-# The `Schedules` used to create/get/delete the schedule.
+# The `pagerduty:ScheduleClient` used to create/get/delete the schedule.
 #
-# + schedules - The `Schedules` client
+# + scheduleClient - The `pagerduty:ScheduleClient`
 # + emailId - The email id for the logged-in user
-public type Schedules client object {
+public type ScheduleClient client object {
 
-    private http:Client schedules;
+    private http:Client scheduleClient;
     public string emailId = "";
 
     function __init(http:Client pagerDuty) {
-        self.schedules = pagerDuty;
+        self.scheduleClient = pagerDuty;
     }
 
     # Creates a new on-call schedule.
     # ```ballerina
-    # pagerduty:Schedule schedule = {"type": "schedule", "timeZone": "Asia/Colombo", "scheduleLayers": [{ "start": time,
-    #                      "rotationTurnLengthInSeconds": 86400, "rotationVirtualStart": time,"users": [
-    #                      {"type": "user", "name": "asha", "email": "asha@gmail.com"}]}]};
-    # pagerduty:Error? response = schedules->createSchedule(schedule);
+    # pagerduty:Schedule schedule = { 'type: "schedule", timeZone: "Asia/Colombo", scheduleLayers: [{
+    #                                 start: time, rotationTurnLengthInSeconds: 86400,
+    #                                 rotationVirtualStart: time, users: [{'type: "user", name: "asha",
+    #                                 email: "as@gmail.com"}]}]};
+    #  pagerduty:Schedule|pagerduty:Error? response = schedules->createSchedule(schedule);
     # ```
     #
-    # + schedule - The schedule which to be created
+    # + schedule - The schedule, which to be created
     # + overflow - Any on-call schedule entries that pass the date range bounds will be truncated at the bounds,
     #              unless the parameter overflow is passed. If pass to `false`, get one schedule entry returned with a
     #              start of `2020-05-16T10:00:00Z` and end of `2020-05-16T14:00:00Z`. If pass to `true`, get
     #              one schedule entry returned with a start of `2020-05-16T00:00:00Z` and end of `2020-05-17T00:00:00Z`.
-    # + return -A `pagerduty:Error` if any error occurred or else `nil`
-    public remote function createSchedule(@tainted Schedule schedule, boolean overflow = false) returns @tainted Error? {
-        string path = SCHEDULE_PATH + OVERFLOW + overflow.toString();
-        http:Request request = new;
-        request.setHeader(FROM, self.emailId);
-        setJsonPayload(<@untained> map<json>.constructFrom(scheduleToPayload(schedule)), request, SCHEDULE);
-        map<json>|Error resp = post(self.schedules, request, path);
-        if (resp is map<json>) {
-            map<json> output = <map<json>>resp[SCHEDULE];
-            return convertToSchedule(output, schedule);
-        } else {
-            return resp;
-        }
+    # + return - A `pagerduty:Schedule` or else a `pagerduty:Error` if any error occurred
+    public remote function create(Schedule schedule, boolean overflow = false) returns Schedule|Error {
+        return <@untainted> createSchedule(self.scheduleClient, schedule, overflow, self.emailId);
     }
 
     # Retrives the all on-call schedules, optionally filtered by a query.
@@ -519,16 +410,10 @@ public type Schedules client object {
     # pagerduty:Schedule[]|pagerduty:Error response = schedules->getSchedules();
     # ```
     #
-    # + query - The string value (eg: "Schedule" , "s" or etc)  which is used to filter the schedules by name.
-    # + return - The lsit of schedules or else a `pagerduty:Error` if any error occurred
-    public remote function getSchedules(string query = "") returns @tainted Schedule[]|Error {
-        string path = SCHEDULE_PATH + QUERY + query;
-        json|Error jsonResponse = get(self.schedules, path);
-        if (jsonResponse is Error) {
-            return jsonResponse;
-        } else {
-            return convertToSchedules(<map<json>>jsonResponse);
-        }
+    # + query - The string value(eg: "Schedule" , "s" or etc), which is used to filter the schedules by name.
+    # + return - The lsit of `pagerduty:Schedule` or else a `pagerduty:Error` if any error occurred
+    public remote function get(string query = "") returns Schedule[]|Error {
+        return <@untainted> getSchedules(self.scheduleClient, query);
     }
 
     # Gets informations about a given existing escalation policy and its rules.
@@ -536,134 +421,89 @@ public type Schedules client object {
     # pagerduty:EscalationPolicy|pagerduty:Error? response = escalationPolicies->getEscalationPolicyById(<POLICY_ID>);
     # ```
     #
-    # + scheduleId - The schedule id which to be update
-    # + return - The escalation policy or else a `pagerduty:Error` if any error
-    #                  occurred
-    public remote function getScheduleById(string scheduleId) returns @tainted Schedule|Error {
-        string path = SCHEDULE_PATH + BACK_SLASH + scheduleId;
-        map<json>|Error response = get(self.schedules, path);
-        if (response is Error) {
-            return response;
-        } else {
-            Schedule schedule = {"type": "schedule", "timeZone": "Asia/Colombo","scheduleLayers": []};
-            Error? output =  convertToSchedule(<map<json>>response[SCHEDULE], schedule);
-            if (output is Error) {
-                return  output;
-            } else {
-                return schedule;
-            }
-        }
+    # + scheduleId - The schedule id, which to be update
+    # + return - A `pagerduty:Schedule` or else a `pagerduty:Error` if any error occurred
+    public remote function getById(string scheduleId) returns Schedule|Error {
+        return <@untainted> getScheduleById(self.scheduleClient, scheduleId);
     }
 
-    # Deletes an on-call schedule.
+    # Deletes an existing on-call schedule.
     # ```ballerina
     # pagerduty:Error? response = schedules->deleteSchedule(<SCHEDULE_ID>);
     # ```
     #
-    # + scheduleId - The schedule id which to be update
-    # + return - The lsit of schedules or else a `pagerduty:Error` if any error occurred
-    public remote function deleteSchedule(string scheduleId) returns @tainted Error? {
+    # + scheduleId - The schedule id, which to be update
+    # + return - The lsit of `pagerduty:Schedule` or else a `pagerduty:Error` if any error occurred
+    public remote function delete(string scheduleId) returns Error? {
         string path = SCHEDULE_PATH + BACK_SLASH + scheduleId;
-        return delete(self.schedules, path);
+        return <@untainted> delete(self.scheduleClient, path);
     }
 };
 
-# The `Services` used to create/update|delete the services/integration.
+# The `pagerduty:ServiceClient` used to create/update|delete the services/integration.
 #
-# + services - The `Services` client
-public type Services client object {
+# + serviceClient - The `pagerduty:ServiceClient`
+public type ServiceClient client object {
 
-    private http:Client services;
+    private http:Client serviceClient;
 
     function __init(http:Client pagerduty) {
-        self.services = pagerduty;
+        self.serviceClient = pagerduty;
     }
 
     # Creates a new service.
     # ```ballerina
-    # pagerduty:Service serv = { "name": "service", "escalationPolicy":{ "type": "escalationPolicy",
-    #                  "name": "Test", "escalationRules": [{ "escalationDelayInMinutes": 30, "users": [
-    #                  {"type": "user", "name": "asha", "email": "asha@gmail.com"}};
-    # pagerduty:Error? response = services->createService(serv);
+    # pagerduty:Service serv = { name: "service", escalationPolicy:{ "type": "escalationPolicy",
+    #                            name: "Test", escalationRules: [{ escalationDelayInMinutes: 30, users: [
+    #                            {'type: "user", name: "asha", email: "as@gmail.com"}};
+    # pagerduty:Service|pagerduty:Error response = services->createService(serv);
     # ```
     #
-    # + serv - The service to be created
-    # + return - A `pagerduty:Error` if any error occurred or else `nil`
-    public remote function createService(@tainted Service serv) returns @tainted Error? {
-       string path = SERVICES_PATH;
-       http:Request request = new;
-       setJsonPayload(<@untainted> map<json>.constructFrom(serviceToPayload(serv)), request, SERVICE);
-       map<json>|Error resp = post(self.services, request, path);
-       if (resp is map<json>) {
-           convertToService(<map<json>>resp[SERVICE], serv);
-       } else {
-           return resp;
-       }
+    # + service - The service to be created
+    # + return - A `pagerduty:Service` or else a `pagerduty:Error` if any error occurred
+    public remote function createService(Service 'service) returns Service|Error {
+       return <@untainted> createService(self.serviceClient, 'service);
     }
 
     # Creates a new integration belonging to a Service.
     # ```ballerina
-    # pagerduty:Integration integration = { "type": "keynoteInboundIntegration", "email": "test@wso34.pagerduty.com"};
-    # pagerduty:Error? response = services->createIntegration(serviceId, <@untained> integration);
+    # pagerduty:Integration integration = { 'type: "keynoteInboundIntegration", email: "test@wso34.pagerduty.com"};
+    # pagerduty:Error? response = services->createIntegration(serviceId, integration);
     # ```
     #
-    # + serviceId - The service id which to be created integration
+    # + serviceId - The service id, which to be created integration
     # + integration - The integration to be created
-    # + return - A `pagerduty:Error` if any error occurred or else `nil`
-    public remote function createIntegration(string serviceId, @tainted Integration integration)
-                                             returns @tainted Error? {
-        string path = SERVICES_PATH + BACK_SLASH + serviceId + BACK_SLASH + INTEGRATIONS;
-        http:Request request = new;
-        setJsonPayload(<@untainted> map<json>.constructFrom(integrationToPayload(integration)), request, INTEGRATION);
-        map<json>|Error resp = post(self.services, request, path);
-        if (resp is map<json>) {
-          convertToIntegration(<map<json>>resp[INTEGRATION], integration);
-        } else {
-          return resp;
-        }
+    # + return - A `pagerduty:Integration `, or else `pagerduty:Error` if any error occurred
+    public remote function createIntegration(string serviceId, Integration integration) returns Integration|Error {
+       return <@untainted> createIntegration(self.serviceClient, serviceId, integration);
     }
 
     # Updates an existing service.
     # ```ballerina
-    # pagerduty:Error? response = services->updateIntegration(<INTEGRATION_ID>, <SERVICE_ID>, <UPDATE_SERVICE>);
+    # pagerduty:Service|pagerduty:Error response = services->updateIntegration(<INTEGRATION_ID>, <SERVICE_ID>,
+    #                                                                           <UPDATE_SERVICE>);
     # ```
     #
-    # + serviceId -The service id which to be update
-    # + updateService -The service details which to be update
+    # + serviceId -The service id, which to be update
+    # + service -The service details which to be update
     # + return - A `pagerduty:Error` if any error occurred or else `nil`
-    public remote function updateService(string serviceId, @tainted Service updateService) returns @tainted Error? {
-        string path = SERVICES_PATH + BACK_SLASH + serviceId;
-        http:Request request = new;
-        setJsonPayload(<@untainted> map<json>.constructFrom(serviceToPayload(updateService)), request, SERVICE);
-        map<json>|Error resp = put(self.services, request, path);
-        if (resp is map<json>) {
-          convertToService(<map<json>>resp[SERVICE], updateService);
-        } else {
-          return resp;
-        }
+    public remote function updateService(string serviceId, Service 'service) returns Service|Error {
+        return <@untainted> updateService(self.serviceClient, serviceId, 'service);
     }
 
     # Updates an integration belonging to a Service.
     # ```ballerina
-    # pagerduty:Error? response = services->updateIntegration(<INTEGRATION_ID>, <SERVICE_ID>, <UPDATE_INTEGRATION>);
+    # pagerduty:Integration|pagerduty:Error? response = services->updateIntegration(<INTEGRATION_ID>, <SERVICE_ID>,
+    #                                                                               <UPDATE_INTEGRATION>);
     # ```
     #
-    # + integrationId - The integration id which to be update
-    # + serviceId - The service id which to be update
-    # + integration - The integration details which to be update
+    # + integrationId - The integration id, which to be update
+    # + serviceId - The service id, which to be update
+    # + integration - The integration details, which to be update
     # + return - A `pagerduty:Error` if any error occurred or else `nil`
-    public remote function updateIntegration(string integrationId, string serviceId, @tainted Integration integration)
-                                             returns @tainted Error? {
-       string path = SERVICES_PATH + BACK_SLASH + serviceId + BACK_SLASH + INTEGRATIONS + BACK_SLASH +
-                     integrationId;
-       http:Request request = new;
-       setJsonPayload(<@untainted> map<json>.constructFrom(integrationToPayload(integration)), request, INTEGRATION);
-       map<json>|Error resp = put(self.services, request, path);
-       if (resp is map<json>) {
-         convertToIntegration(<map<json>>resp[INTEGRATION], integration);
-       } else {
-         return resp;
-       }
+    public remote function updateIntegration(string integrationId, string serviceId, Integration integration)
+                                 returns Integration|Error {
+        return <@untainted> updateIntegration(self.serviceClient, integrationId, serviceId, integration);
     }
 
     # Deletes an existing service.
@@ -671,68 +511,50 @@ public type Services client object {
     # pagerduty:Error? response = services->deleteService(<SERVICE_ID>);
     # ```
     #
-    # + serviceId -The service id which to be delete
+    # + serviceId -The service id, which to be delete
     # + return - A `pagerduty:Error` if any error occurred or else `nil`
-    public remote function deleteService(string serviceId) returns @tainted Error? {
+    public remote function deleteService(string serviceId) returns Error? {
         string path = SERVICES_PATH + BACK_SLASH + serviceId;
-        return delete(self.services, path);
+        return <@untainted> delete(self.serviceClient, path);
     }
 };
 
-# The `Extensions` used to create/get/update/delete the extension.
+# The `pagerduty:ExtensionClient` used to create/get/update/delete the extension.
 #
-# + extensions - The `Extensions` client
-public type Extensions client object {
+# + extensionClient - The `pagerduty:ExtensionClient` client
+public type ExtensionClient client object {
 
-    private http:Client extensions;
+    private http:Client extensionClient;
 
     function __init(http:Client pagerDuty) {
-       self.extensions = pagerDuty;
+       self.extensionClient = pagerDuty;
     }
 
     # Creates a new Extension.
     # ```ballerina
-    # pagerduty:Extension extension = { "type": "extension","name": "webhook",
-    #                                   "endpointUrl": "http://8bac231a.ngrok.io/webhooks",
-    #                                   "extensionSchema": {"id": "PJFWPEP","type": "extensionSchemaReference",
-    #                                   "summary": "Generic V2 Webhook"},"services": [populatedService]};
-    # pagerduty:Error? response = extensions->createExtension(extension);
+    # pagerduty:Extension extension = { 'type: "extension", name: "webhook",
+    #                                   endpointUrl: "http://8bac231a.ngrok.io/webhooks",
+    #                                   extensionSchema: {id: "PJFWPEP", 'type: "extensionSchemaReference",
+    #                                   summary: "Generic V2 Webhook"}, 'services: [populatedService]};
+    # pagerduty:Extension|pagerduty:Error response = extensions->createExtension(extension);
     # ```
     #
     # + extension -The extension to be created
-    # + return - A `pagerduty:Error` if any error occurred or else `nil`
-    public remote function createExtension(@tainted Extension extension) returns @tainted Error? {
-        string path = EXTENSION_PATH;
-        http:Request request = new;
-        setJsonPayload(<@untainted> map<json>.constructFrom(extensionToPayload(extension)), request, EXTENSION);
-        map<json>|Error resp = post(self.extensions, request, path);
-        if (resp is map<json>) {
-          map<json> output = <map<json>>resp[EXTENSION];
-          return convertToExtension(output, extension);
-        } else {
-          return resp;
-        }
+    # + return - A `pagerduty:Extension` or esle `pagerduty:Error` if any error occurred
+    public remote function create(Extension extension) returns Extension|Error {
+        return <@untainted> createExtension(self.extensionClient, extension);
     }
 
     # Updates an existing extension.
     # ```ballerina
-    # pagerduty:Error? response = extensions->updateExtension(<EXTENSION_ID>, <UPDATE_EXTENSION>);
+    # pagerduty:Extension|pagerduty:Error response = extensions->updateExtension(<EXTENSION_ID>, <UPDATE_EXTENSION>);
     # ```
     #
-    # + extensionId -The extension id which to be update
+    # + extensionId -The extension id, which to be update
     # + extension -The extension details which to be update
-    # + return - A `pagerduty:Error` if any error occurred or else `nil`
-    public remote function updateExtension(string extensionId, @tainted Extension extension) returns @tainted Error? {
-        string path = EXTENSION_PATH + BACK_SLASH + extensionId;
-        http:Request request = new;
-        setJsonPayload(<@untainted> map<json>.constructFrom(extensionToPayload(extension)), request, EXTENSION);
-        map<json>|Error resp = put(self.extensions, request, path);
-        if (resp is map<json>) {
-            map<json> output = <map<json>>resp[EXTENSION];
-            return convertToExtension(output, extension);
-        } else {
-            return resp;
-        }
+    # + return -A `pagerduty:Extension` or esle `pagerduty:Error` if any error occurred
+    public remote function update(string extensionId, Extension extension) returns Extension|Error {
+        return <@untainted> updateExtension(self.extensionClient, extensionId, extension);
     }
 
     # Gets details about any given existing extension.
@@ -741,19 +563,9 @@ public type Extensions client object {
     # ```
     #
     # + extensionId -  The ID of the extension
-    # + return - The extension or else a `pagerduty:Error` if any error  occurred
-    public remote function getExtensionById(string extensionId) returns @tainted Extension|Error {
-        string path = EXTENSION_PATH + BACK_SLASH + extensionId;
-        json|Error jsonResponse = get(self.extensions, path);
-        if (jsonResponse is Error) {
-            return jsonResponse;
-        } else {
-            map<json> resp = <map<json>>jsonResponse;
-            Extension extension = {"type": "extension", "name": "", "services": [], "extensionSchema":
-            {"type": "extension", "id": ""}};
-            convertToExtension(<map<json>>resp[EXTENSION], extension);
-            return extension;
-        }
+    # + return - A `pagerduty:Extension` or esle `pagerduty:Error` if any error occurred
+    public remote function getById(string extensionId) returns Extension|Error {
+        return <@untainted> getExtensionById(self.extensionClient, extensionId);
     }
 
     # Deletes an existing extension.
@@ -761,49 +573,44 @@ public type Extensions client object {
     # pagerduty:Error? response = extensions->deleteExtension(<EXTENSION_ID>);
     # ```
     #
-    # + extensionId -  The ID of the extension which to be delete
+    # + extensionId -  The ID of the extension, which to be delete
     # + return - A `pagerduty:Error` if any error occurred or else `nil`
-    public remote function deleteExtension(string extensionId) returns @tainted Error? {
+    public remote function delete(string extensionId) returns Error? {
         string path = EXTENSION_PATH + BACK_SLASH + extensionId;
-        return delete(self.extensions, path);
+        return <@untainted> delete(self.extensionClient, path);
     }
 };
 
-# The `Incidents` used to create/get/update/manage/delete/snooze the incidents and add note into that.
+# The `pagerduty:IncidentClient` used to create/get/update/manage/delete/snooze the incidents and add note into that.
 #
-# + incidents - The `Incidents` client
+# + incidentClient - The `pagerduty:IncidentClient` client
 # + emailId - The email id for the logged-in user
-public type Incidents client object {
+public type IncidentClient client object {
 
-    private http:Client incidents;
+    private http:Client incidentClient;
     public string emailId = "";
 
     function __init(http:Client pagerDuty) {
-       self.incidents = pagerDuty;
+       self.incidentClient = pagerDuty;
     }
 
     # Creates a new incident.
     # ```ballerina
-    # pagerduty:Incident incident = { "type": "incident","title": "Test","service": { "name": "service",
-    #                                 "escalationPolicy":{ "type": "escalationPolicy",
-    #                                 "name": "Test", "escalationRules": [{ "escalationDelayInMinutes": 30, "users": [
-    #                                 { "type": "user", "name": "asha", "email": "asha@gmail.com"}};
-    # pagerduty:Error? response = incidents->createIncident(<@untained> incident);
+    # pagerduty:Incident incident = { 'type: "incident", title: "Test", service: { name: "service",
+    #                                 escalationPolicy:{ 'type: "escalationPolicy",
+    #                                 name: "Test", escalationRules: [{ escalationDelayInMinutes: 30, users: [
+    #                                 { 'type: "user", name: "asha", email: "as@gmail.com"}};
+    # pagerduty:Incident|pagerduty:Error response = incidents->createIncident(incident);
     # ```
     #
     # + incident - The incident to be created
-    # + return - A `pagerduty:Error` if any error occurred or else `nil`
-    public remote function createIncident(@tainted Incident incident) returns @tainted Error? {
-        string path = INCIDENT_PATH;
-        http:Request request = new;
-        request.setHeader(FROM, self.emailId);
-        setJsonPayload(<@untained> map<json>.constructFrom(incidentToPayload(incident)), request, INCIDENT);
-        map<json>|Error resp = post(self.incidents, request, path);
-        if (resp is map<json>) {
-            return convertToIncident(<map<json>>resp[INCIDENT], incident);
-        } else {
-            return resp;
+    # + return - A `pagerduty:Incident` or esle `pagerduty:Error` if any error occurred
+    public remote function createIncident(Incident incident) returns Incident|Error {
+        if (self.emailId == "") {
+            return <@untainted> Error(message = "Can't access the `createIncident` operation without logged-in" +
+                                      " user email id", cause = getError());
         }
+        return <@untainted> createIncident(self.incidentClient, incident, self.emailId);
     }
 
     # Retrieves an incident by the ID.
@@ -812,106 +619,74 @@ public type Incidents client object {
     # ```
     #
     # + incidentId - Either the id or number of the incident to retrieve
-    # + return - The incident or else a `pagerduty:Error` if any error occurred
-    public remote function getIncidentById(string incidentId) returns @tainted Incident|Error {
-        string path = INCIDENT_PATH + BACK_SLASH + incidentId;
-        map<json>|Error response = get(self.incidents, path);
-        if (response is Error) {
-           return response;
-        } else {
-           Incident incident = { "type": "extension", "title": "", "service": {"name": "service",
-           "escalationPolicy": {"type": "sms", "id": "", "name": "", "escalationRules": []}}};
-           convertToIncident(<map<json>>response[INCIDENT], incident);
-           return incident;
-        }
+    # + return - A `pagerduty:Incident` or esle `pagerduty:Error` if any error occurred
+    public remote function getIncidentById(string incidentId) returns Incident|Error {
+        return <@untainted> getIncidentById(self.incidentClient, incidentId);
     }
 
     # Acknowledges, resolves, escalates or reassigns one or more incidents.
     # ```ballerina
-    # pagerduty:Incident[]|pagerduty:Error? response = incidents->manageIncidents(<SET_OF_UPDATE_INCEDENTS>);
+    # UpdateIncident[] incidents = {'type: "incidentReference", status: "acknowledged"};
+    # pagerduty:Incident[]|pagerduty:Error? response = incidents->manageIncidents(incidents);
     # ```
     #
     # + incident - An array of incidents which including the parameters to update.
-    # + return -  A list of Incident or else a `pagerduty:Error` if any error occurred
-    public remote function manageIncidents(@tainted Incident[] incident) returns @tainted Incident[]|Error {
-        string path = INCIDENT_PATH;
-        http:Request request = new;
-        request.setHeader(FROM, self.emailId);
-        setJsonPayload(<@untainted> incidentsToPayload(incident), request, INCIDENTS);
-        map<json>|Error resp = put(self.incidents, request, path);
-        if (resp is map<json>) {
-            Incident[] incidents = [];
-            convertToIncidents(resp, incidents);
-            return incidents;
-        } else {
-            return resp;
+    # + return - A list of `pagerduty:Incident` or esle `pagerduty:Error` if any error occurred
+    public remote function updateIncidents(Incident[]|json[] incident) returns Incident[]|Error {
+        if (self.emailId == "") {
+            return <@untainted> Error(message = "Can't access the `updateIncidents` operation without logged-in " +
+                                      "user email id", cause = getError());
         }
+        return <@untainted> updateIncidents(self.incidentClient, incident, self.emailId);
     }
 
     # Updates an incident.
     # ```ballerina
-    # pagerduty:Error? response = incidents->updateIncident(<UPDATE_INCIDENT>);
+    # pagerduty:Incident|pagerduty:Error response = incidents->updateIncident(<UPDATE_INCIDENT>);
     # ```
     #
     # + incident - The Incident details which to be update
     # + incidentId - The id of the incident
-    # + return - A `pagerduty:Error` if any error occurred or else `nil`
-    public remote function updateIncident(string incidentId, @tainted Incident incident) returns @tainted Error? {
-        string path = INCIDENT_PATH + BACK_SLASH + incidentId;
-        http:Request request = new;
-        request.setHeader(FROM, self.emailId);
-        setJsonPayload(<@untained> map<json>.constructFrom(incidentToPayload(incident)), request, INCIDENT);
-        map<json>|Error resp = put(self.incidents, request, path);
-        if (resp is map<json>) {
-            convertToIncident(<map<json>>resp[INCIDENT], incident);
-        } else {
-            return resp;
+    # + return - A `pagerduty:Incident` or esle `pagerduty:Error` if any error occurred
+    public remote function updateIncident(string incidentId, Incident|json incident)
+                                 returns Incident|Error {
+        if (self.emailId == "") {
+            return <@untainted> Error(message = "Can't access the `updateIncident` operation without " +
+                                      "logged-in user email id", cause = getError());
         }
+       return <@untainted> updateIncident(self.incidentClient, incidentId, incident, self.emailId);
     }
 
     # Creates a new note for the specified incident.
     # ```ballerina
-    # pagerduty:Note note = {"content": "Firefighters are on the scene."};
-    # pagerduty:Error? response = incidents->addNote(<INCIDENT_ID>, note);
+    # pagerduty:Note note = {content: "Firefighters are on the scene."};
+    # pagerduty:Note|pagerduty:Error response = incidents->addNote(<INCIDENT_ID>, note);
     # ```
     #
     # + incidentId - The Incident id
     # + note - The note which to be created
-    # + return - A `pagerduty:Error` if any error occurred or else `nil`
-    public remote function addNote(string incidentId, @tainted Note note) returns @tainted Error? {
-        string path = INCIDENT_PATH + BACK_SLASH + incidentId + BACK_SLASH + NOTES;
-        http:Request request = new;
-        request.setHeader(FROM, self.emailId);
-        setJsonPayload(map<json>.constructFrom(noteToPayload(note)), request, NOTE);
-        map<json>|Error resp = post(self.incidents, request, path);
-        if (resp is map<json>) {
-            return convertToNote(<map<json>>resp[NOTE], note);
-        } else {
-            return resp;
+    # + return - A `pagerduty:Note` or esle `pagerduty:Error` if any error occurred
+    public remote function addNote(string incidentId, Note note) returns Note|Error {
+        if (self.emailId == "") {
+            return <@untainted> Error(message = "Can't access the `addNote` operation without logged-in user email id",
+                                      cause = getError());
         }
+        return <@untainted> addNote(self.incidentClient, incidentId, note, self.emailId);
     }
 
-    # Snoozes an incident.
+    # Snoozes a given incident by a certain time..
     # ```ballerina
-    # pagerduty:Incident|pagerduty:Error? response = incidents->snoozeIncident(<INCIDENT_ID>, <DURATION>);
+    # pagerduty:Incident|pagerduty:Error response = incidents->snoozeIncident(<INCIDENT_ID>, <DURATION>);
     # ```
     #
     # + incidentId - The Incident id
-    # + durationInSeconds - The number of seconds to snooze the incident for
-    # + return - A `pagerduty:Error` if any error occurred or else `nil`
-    public remote function snoozeIncident(string incidentId, int durationInSeconds) returns @tainted Incident|Error {
-        string path = INCIDENT_PATH + BACK_SLASH + incidentId + BACK_SLASH + SNOOZE;
-        http:Request request = new;
-        request.setHeader(FROM, self.emailId);
-        request.setJsonPayload({"duration": durationInSeconds});
-        map<json>|Error resp = post(self.incidents, request, path);
-        if (resp is map<json>) {
-            Incident incident = { "type": "extension", "title": "", "service": {"name": "service",
-                       "escalationPolicy": {"type": "sms", "id": "", "name": "", "escalationRules": []}}};
-            convertToIncident(<map<json>>resp[INCIDENT], incident);
-            return incident;
-        } else {
-            return resp;
+    # + durationInSeconds - The amount of time in seconds to snooze the incident
+    # + return - A `pagerduty:Incident` or esle `pagerduty:Error` if any error occurred
+    public remote function snoozeIncident(string incidentId, int durationInSeconds) returns Incident|Error {
+        if (self.emailId == "") {
+            return <@untainted> Error(message = "Can't access the `snoozeIncident` operation without logged-in " +
+                                      "user email id", cause = getError());
         }
+        return <@untainted> snoozeIncident(self.incidentClient, incidentId, durationInSeconds, self.emailId);
     }
 };

@@ -1,6 +1,6 @@
 ## Module Overview
 
-The `ballerinax/pagerduty` module allows you to work with PagerDuty users, escalationPolicies, services, schedules, and incidents through the PagerDuty Rest API. 
+The `ballerinax/pagerduty` module allows you to work with PagerDuty users, escalationPolicies, extensions, services, schedules, and incidents through the PagerDuty Rest API. 
 
 The following sections provide you details on how to use the `pagerduty`.
 
@@ -18,14 +18,14 @@ The following sections provide you details on how to use the `pagerduty`.
 
 ## Feature Overview
 
-The following groups are provided by Ballerina to interact with different API groups of the pagerDuty REST API. 
-1. **pagerDuty:Account** - The `Account` used to initiate the contact with the pagerDuty API and create all the associated sub groups with the operations.
-2. **pagerDuty:Users** - The `Users`, which will be used to create/get/delete the User/Contact method/ Notification rule.
-3. **pagerDuty:EscalationPolicies** - The `EscalationPolicies`, which will be used to create/get/update/delete the escalation policy.
-4. **pagerDuty:Schedules** - The `Schedules`, which will be used to create/get/delete the schedule.
-5. **pagerDuty:Services** - The `Services`, which will be used to create/update|delete the services/integration. 
-6. **pagerDuty:Extensions** - The `Extensions`, which will be used to create/get/update/delete the extension.   
-7. **pagerDuty:Incidents** - The `Incidents`, which will be used to create/get/update/manage/delete/snooze the incidents and add the note into that.
+The following collections are provided by Ballerina to interact with different API groups of the pagerDuty REST API. 
+- **pagerDuty:Account** - The `Account`, which is used to initiate the contact with the PagerDuty API and create all the associated sub groups with the operations.   
+- **pagerDuty:UserClient** - The `UserClient`, which will be used to create/get/delete the Users/Contact methods/ Notification rules.
+- **pagerDuty:EscalationPolicyClient** - The `EscalationPolicyClient`, which will be used to create/get/update/delete the escalation policies.
+- **pagerDuty:ScheduleClient** - The `ScheduleClient`, which will be used to create/get/delete the schedules.
+- **pagerDuty:ServiceClient** - The `ServiceClient`, which will be used to create/update|delete the services/integrations. 
+- **pagerDuty:ExtensionClient** - The `ExtensionClient`, which will be used to create/get/update/delete the extensions.
+- **pagerDuty:IncidentClient** - The `IncidentClient`, which will be used to create/get/update/manage/delete/snooze the incidents and add notes into that.
 
 ## Getting Started
 
@@ -55,106 +55,110 @@ import ballerina/io;
 import ballerinax/pagerduty;
 import ballerina/time;
 
-pagerduty:Configuration pagerdutyConfig = {
-    oauth2Config: {
-        accessToken: <API_TOKEN>
-    }
-};
-
 public function main() {
-    pagerduty:Account pagerduty = new(pagerdutyConfig);
-    pagerduty:Users users = pagerduty.getUsers();
-    pagerduty:EscalationPolicies escalations = pagerduty.getEscalationPolicies();
-    pagerduty:Schedules schedules = pagerduty.getSchedules();
-    pagerduty:Services services = pagerduty.getServices();
-    pagerduty:Extensions extensions = pagerduty.getExtensions();
-    pagerduty:Incidents incidents = pagerduty.getIncidents();
+    pagerduty:Account pagerduty = new("API_TOKEN");
+    pagerduty:UserClient userClient = pagerduty.getUserClient();
+    pagerduty:EscalationPolicyClient escalationClient = pagerduty.getEscalationPolicyClient();
+    pagerduty:ScheduleClient scheduleClient = pagerduty.getScheduleClient();
+    pagerduty:ServiceClient serviceClient = pagerduty.getServiceClient();
+    pagerduty:ExtensionClient extensionClient = pagerduty.getExtensionClient();
+    pagerduty:IncidentClient incidentClient = pagerduty.getIncidentClient();
 
     string userId = "";
-    pagerduty:User user =  { "type": "user", "name": "peter", "email": "kalai@gmail.com", "role": "admin"};
-    pagerduty:ContactMethod contactMethod = { "type": "sms","summary": "Home","label": "home","countryCode": 1,
-                                              "address": "5766792895"};
-    pagerduty:EscalationPolicy createdEscalationPolicy = { "type": "sms", "id": "", "name": "", "escalationRules": []};
-    pagerduty:Service createdService = { "name": "service", "escalationPolicy": createdEscalationPolicy};
+    pagerduty:User user =  { 'type: "user", name: "Abisayan", email: "example@gmail.com", role: "admin"};
+    pagerduty:ContactMethod contactMethod = { 'type: "sms", summary: "Home", label: "home", countryCode: 1, address: "5766792895"};
+    pagerduty:EscalationPolicy createdPolicy = { 'type: "sms", id: "", name: "", escalationRules: []};
+    pagerduty:Service createdService = { name: "service", escalationPolicy: createdPolicy};
+    pagerduty:ContactMethod createdContactMethod = { 'type: "sms", address: "5766792895"};
+    pagerduty:User createdUser =  { 'type: "user", name: "", email: "a@gmail.com"};
 
-    pagerduty:Error? response = users->createUser(<@untained> user);
-    if (response is pagerduty:Error) {
-        io:println("Error" + response.toString());
+    // Creates a new user
+    pagerduty:Error|pagerduty:User output = userClient->createUser(user);
+    if (output is pagerduty:Error) {
+        io:println("Error" + output.toString());
     } else {
-        userId = user.get("id").toString();
+        userId = output.get("id").toString();
+        createdUser = output;
         io:println("User id " + userId);
     }
 
-    response = users->createContactMethod(<@untained> userId, <@untained> contactMethod);
-    if (response is pagerduty:Error) {
-        io:println("Error" + response.toString());
+    // Creates a new contact method
+    pagerduty:Error|pagerduty:ContactMethod createdMethod = userClient->createContactMethod(userId, contactMethod);
+    if (createdMethod is pagerduty:Error) {
+        io:println("Error" + createdMethod.toString());
     } else {
-        io:println("Contact method id " + contactMethod.get("id").toString());
+        createdContactMethod = createdMethod;
+        io:println("Contact method id " + createdContactMethod.get("id").toString());
     }
 
-    pagerduty:NotificationRule rule = { "startDelayInMinutes": 1, "contactMethod" : contactMethod, "urgency": "high",
+    // Creates a new notification rule
+    pagerduty:NotificationRule rule = { startDelayInMinutes: 1, contactMethod : createdContactMethod, urgency: "high",
                               'type: "assignmentNotificationRule"};
-    response = users->createNotificationRule(<@untained> userId, <@untained> rule);
-    if (response is pagerduty:Error) {
-        io:println("Error" + response.toString());
+    pagerduty:Error|pagerduty:NotificationRule createdRule = userClient->createNotificationRule(userId, rule);
+    if (createdRule is pagerduty:Error) {
+        io:println("Error" + createdRule.toString());
     } else {
-        io:println("Notification rule id " + rule.get("id").toString());
+        io:println("Notification rule id " + createdRule.get("id").toString());
     }
 
-    pagerduty:EscalationPolicy escalationPolicy = { "type": "escalationPolicy", "name": "Escalation Policy for Test",
-                                          "escalationRules": [{ "escalationDelayInMinutes": 30,
-                                          "targets": [{"id": userId, "type": "user"}]}]
+    // Creates a new escalation policy
+    pagerduty:EscalationPolicy escalationPolicy = { 'type: "escalationPolicy", name: "Escalation Policy for Test",
+                                                    escalationRules: [{ escalationDelayInMinutes: 30,
+                                                    targets: [{id: userId, 'type: "user"}]}]
                                         };
-    response = escalations->createEscalationPolicy(escalationPolicy);
+    pagerduty:EscalationPolicy|pagerduty:Error response = escalationClient->create(escalationPolicy);
     if (response is pagerduty:Error) {
         io:println("Error" + response.toString());
     } else {
-        createdEscalationPolicy = escalationPolicy;
-        io:println("EscalationPolicy id " + escalationPolicy.get("id").toString());
+        createdPolicy = response;
+        io:println("EscalationPolicy id " + response.get("id").toString());
     }
 
+    // Creates a new schedule
     time:Time time = time:currentTime();
-    pagerduty:Schedule schedule = { "type": "schedule", "timeZone": "Asia/Colombo",
-                                    "scheduleLayers": [{ "start": time, "rotationTurnLengthInSeconds": 86400,
-                                                         "rotationVirtualStart": time, "users": [user]
-                                                         }]
+    pagerduty:Schedule schedule = { 'type: "schedule", timeZone: "Asia/Colombo",
+                                    scheduleLayers: [{ 'start: time, rotationTurnLengthInSeconds: 86400,
+                                                        rotationVirtualStart: time, users: [createdUser]
+                                                     }]
                                    };
-    response = schedules->createSchedule(schedule);
-    if (response is pagerduty:Error) {
-       io:println("Error" + response.toString());
+    pagerduty:Schedule|pagerduty:Error createdSchedule = scheduleClient->create(schedule);
+    if (createdSchedule is pagerduty:Error) {
+       io:println("Error" + createdSchedule.toString());
     } else {
-        io:println("Schedule id " + schedule.get("id").toString());
+        io:println("Schedule id " + createdSchedule.get("id").toString());
     }
 
-    pagerduty:Service serv = { "name": "New services", "escalationPolicy": createdEscalationPolicy};
-    response = services->createService(serv);
-    if (response is pagerduty:Error) {
-        io:println("Error" + response.toString());
+    // Creates a new service
+    pagerduty:Service serv = { name: "New services", escalationPolicy: createdPolicy, alertCreation:"createAlertsAndIncidents"};
+    pagerduty:Service|pagerduty:Error resp = serviceClient->createService(serv);
+    if (resp is pagerduty:Error) {
+        io:println("Error" + resp.toString());
     } else {
-        createdService = serv;
-        io:println("Service id " + serv.get("id").toString());
+        createdService = resp;
+        io:println("Service id " + resp.get("id").toString());
 
     }
 
-    pagerduty:Extension extension = { "type": "extension", "name": "webhook",
-                                       "endpointUrl": "http://8bac231a.ngrok.io/webhooks", 
-                                       "extensionSchema": {"id": "PJFWPEP", "type": "extensionSchemaReference",
-                                       "summary": "Generic V2 Webhook"}, "services": [createdService]
+    // Creates a new extension
+    pagerduty:Extension extension = { 'type: "extension", name: "webhook",
+                                       endpointUrl: "http://fc321768.ngrok.io/webhooks",
+                                       extensionSchema: {id: "PJFWPEP", 'type: "extensionSchemaReference",
+                                       summary: "Generic V2 Webhook"}, services: [createdService]
                                     };
-    response = extensions->createExtension(extension);
-    if (response is pagerduty:Error) {
-        io:println("Error" + response.toString());
+    pagerduty:Extension|pagerduty:Error createdExtension = extensionClient->create(extension);
+    if (createdExtension is pagerduty:Error) {
+        io:println("Error" + createdExtension.toString());
     } else {
-        io:println("Extension id " + extension.get("id").toString());
+        io:println("Extension id " + createdExtension.get("id").toString());
     }
 
-    pagerduty:Incident incident = {"type": "incident", "title": "Test", "service": createdService};
-    response = incidents->createIncident(incident);
-    if (response is pagerduty:Error) {
-        io:println("Error" + response.toString());
+    // Creates a new incident
+    pagerduty:Incident incident = {'type: "incident", title: "Test", 'service: createdService};
+    pagerduty:Incident|pagerduty:Error createdIncident = incidentClient->createIncident(incident);
+    if (createdIncident is pagerduty:Error) {
+        io:println("Error" + createdIncident.toString());
     } else {
-        io:println("Incident id " + incident.get("id").toString());
+        io:println("Incident id " + createdIncident.get("id").toString());
     }
 }
-
 ```
