@@ -75,57 +75,57 @@ public type Account object {
     # pagerduty:UserClient userClient = pagerduty.getUserClient();
     # ```
     #
-    # + return - The `pagerduty:UserClient` client
+    # + return - The `pagerduty:UserClient`
     public function getUserClient() returns UserClient {
         return self.userClient;
     }
 
-    # Retrieves the `pagerduty:EscalationPolicies` client.
+    # Retrieves the `pagerduty:EscalationPolicyClient`.
     # ```ballerina
-    # pagerduty:EscalationPolicies escalations = pagerduty.getEscalationPolicies();
+    # pagerduty:EscalationPolicyClient escalationClient = pagerduty.getEscalationPolicyClient();
     # ```
     #
-    # + return - The `pagerduty:EscalationPolicies` client
+    # + return - The `pagerduty:EscalationPolicyClient`
     public function getEscalationPolicyClient() returns EscalationPolicyClient {
         return self.escalationPolicyClient;
     }
 
-    # Retrieve the `pagerduty:Schedules` client.
+    # Retrieve the `pagerduty:ScheduleClient`.
     # ```ballerina
-    # pagerduty:Schedules schedules = pagerduty.getSchedules();
+    # pagerduty:ScheduleClient scheduleClient = pagerduty.getScheduleClient();
     # ```
     #
-    # + return - The `pagerduty:Schedules` client
+    # + return - The `pagerduty:ScheduleClient`
     public function getScheduleClient() returns ScheduleClient {
         return self.scheduleClient;
     }
 
-    # Retrieves the `pagerduty:Services` client.
+    # Retrieves the `pagerduty:ServiceClient`.
     # ```ballerina
-    # pagerduty:Services services = pagerduty.getServices();
+    # pagerduty:ServiceClient serviceClient = pagerduty.getServiceClient();
     # ```
     #
-    # + return - The `pagerduty:Services` client
+    # + return - The `pagerduty:ServiceClient`
     public function getServiceClient() returns ServiceClient {
         return self.serviceClient;
     }
 
-    # Retrieves the `pagerduty:Extensions` client.
+    # Retrieves the `pagerduty:ExtensionClient`.
     # ```ballerina
-    # pagerduty:Extensions extensions = pagerduty.getExtensions();
+    # pagerduty:ExtensionClient extensionClient = pagerduty.getExtensionClient();
     # ```
     #
-    # + return - The `pagerduty:Extensions` client
+    # + return - The `pagerduty:ExtensionClient`
     public function getExtensionClient() returns ExtensionClient {
         return self.extensionClient;
     }
 
-    # Retrieves the `pagerduty:Incidents` client.
+    # Retrieves the `pagerduty:IncidentClient`.
     # ```ballerina
-    # pagerduty:Incidents incidents = pagerduty.getIncidents();
+    # pagerduty:IncidentClient incidentClient = pagerduty.getIncidentClient();
     # ```
     #
-    # + return - The `pagerduty:Incidents` client
+    # + return - The `pagerduty:IncidentClient`
     public function getIncidentClient() returns IncidentClient {
         return self.incidentClient;
     }
@@ -147,7 +147,7 @@ public type UserClient client object {
     # Creates a new user.
     # ```ballerina
     # pagerduty:User user = {'type: "user", name: "", email: ""};
-    # pagerduty:User|pagerduty:Error response = users->createUser(user);
+    # pagerduty:User|pagerduty:Error response = userClient->createUser(user);
     # ```
     #
     # + user -  The user, which to be created
@@ -163,7 +163,7 @@ public type UserClient client object {
     # Creates a new contact method for the User.
     # ```ballerina
     # pagerduty:ContactMethod contactMethod = {'type: "sms", address: ""};
-    # pagerduty:ContactMethod|pagerduty:Error response = users->createContactMethod(contactMethod);
+    # pagerduty:ContactMethod|pagerduty:Error response = userClient->createContactMethod(contactMethod);
     # ```
     #
     # + contactMethod -  The contact method, which to be created
@@ -178,7 +178,7 @@ public type UserClient client object {
     # ```ballerina
     # pagerduty:NotificationRule rule = { startDelayInMinutes: 1, contactMethod: populatedContactMethod,
     #                                     urgency: "high", 'type: "assignmentNotificationRule"};
-    # pagerduty:NotificationRule|pagerduty:Error response = users->createNotificationRule(rule);
+    # pagerduty:NotificationRule|pagerduty:Error response = userClient->createNotificationRule(rule);
     # ```
     #
     # + rule -  The notification rule to be created.
@@ -190,7 +190,7 @@ public type UserClient client object {
 
     # Retrieves all contact methods for a given user.
     # ```ballerina
-    # pagerduty:ContactMethod[]|pagerduty:Error response = users->getContactMethods(<USER_ID>);
+    # pagerduty:ContactMethod[]|pagerduty:Error response = userClient->getContactMethods(<USER_ID>);
     # ```
     #
     # + userId -  The ID of the user, which to be added contact details
@@ -201,7 +201,7 @@ public type UserClient client object {
 
     # Retrieves all notification rules for a given user.
     # ```ballerina
-    # pagerduty:NotificationRule[]:pagerduty:Error response = users->getUserNotificationRules(<USER_ID>);
+    # pagerduty:NotificationRule[]:pagerduty:Error response = userClient->getUserNotificationRules(<USER_ID>);
     # ```
     #
     # + userId -  The ID of the user
@@ -212,7 +212,7 @@ public type UserClient client object {
 
     # Retrieves all users, optionally filtered by a query and teamIds.
     # ```ballerina
-    # pagerduty:User[]|pagerduty:Error response = users->getUsers();
+    # pagerduty:User[]|pagerduty:Error response = userClient->getUsers();
     # ```
     #
     # + query - The string value(eg: “john” ,“asd@gmail.com” or “k”) which is used to filter the users whose names or
@@ -226,7 +226,7 @@ public type UserClient client object {
 
     # Retrieves details about an given user.
     # ```ballerina
-    # pagerduty:User|pagerduty:Error? response = users->getUserById(<USER_ID>);
+    # pagerduty:User|pagerduty:Error response = userClient->getUserById(<USER_ID>);
     # ```
     #
     # + userId -  The ID of the user
@@ -237,8 +237,8 @@ public type UserClient client object {
 
     # Retrieves details about a given contact method id which is associated with the given uesr id.
     # ```ballerina
-    # pagerduty:ContactMethod|pagerduty:Error? response = users->getUserContactMethodById(<CONTACT_METHOD_ID>,
-    #                                                                                     <USER_ID>);
+    # pagerduty:ContactMethod|pagerduty:Error response = userClient->getUserContactMethodById(<CONTACT_METHOD_ID>,
+    #                                                                                         <USER_ID>);
     # ```
     #
     # + contactMethodId -  The ID of the contact meyhod
@@ -250,8 +250,8 @@ public type UserClient client object {
 
     # Retrieves notification rule about a given notification rule id which is associated with the given uesr id.
     # ```ballerina
-    # pagerduty:NotificationRule|pagerduty:Error? response = users->getUserNotificationRuleById(<NOTIFICATION_RULE_ID>,
-    #                                                                                 <USER_ID>);
+    # pagerduty:NotificationRule|pagerduty:Error response = userClient->getUserNotificationRuleById(
+    #                                                                            <NOTIFICATION_RULE_ID>, <USER_ID>);
     # ```
     #
     # + notificationRuleId -  The ID of the notification rule
@@ -264,7 +264,7 @@ public type UserClient client object {
 
     # Removes an existing user
     # ```ballerina
-    # pagerduty:NotificationRule|pagerduty:Error? response = users->deleteUser(<USER_ID>);
+    # pagerduty:Error? response = userClient->deleteUser(<USER_ID>);
     # ```
     #
     # + userId -  The ID of the user
@@ -276,7 +276,7 @@ public type UserClient client object {
 
     #Removes an existing particular `ContactMethod` of the given user
     # ```ballerina
-    # pagerduty:NotificationRule|pagerduty:Error? response = users->deleteContactMethod(<CONTACT_METHOD_ID>, <USER_ID>);
+    # pagerduty:Error? response = userClient->deleteContactMethod(<CONTACT_METHOD_ID>, <USER_ID>);
     # ```
     #
     # + contactMethodId -  The ID of the contact meyhod
@@ -290,8 +290,7 @@ public type UserClient client object {
 
     # Removes an existing particular `NotificationRule` of the given user
     # ```ballerina
-    # pagerduty:NotificationRule|pagerduty:Error? response = users->deleteNotificationRule(<NOTIFICATION_RULE_ID>,
-    #                                                                                       <USER_ID>);
+    # pagerduty:Error? response = userClient->deleteNotificationRule(<NOTIFICATION_RULE_ID>, <USER_ID>);
     # ```
     #
     # + notificationRuleId -  The ID of the notification rule
@@ -304,9 +303,9 @@ public type UserClient client object {
     }
 };
 
-# The `pagerduty:EscalationPolicies` used to create/get/update/delete the escalation policy.
+# The `pagerduty:EscalationPolicyClient` used to create/get/update/delete the escalation policy.
 #
-# + escalationPolicyClient - The `pagerduty:EscalationPolicies`
+# + escalationPolicyClient - The `pagerduty:EscalationPolicyClient`
 # + emailId - The email id for the logged-in user
 public type EscalationPolicyClient client object {
 
@@ -322,7 +321,7 @@ public type EscalationPolicyClient client object {
     # pagerduty:EscalationPolicy escalationPolicy = { 'type: "escalationPolicy", name: "Test",
     #                                                  escalationRules: [{ "escalationDelayInMinutes": 30, users: [
     #                                                  {'type: "user", name: "asha", email: "asha@gmail.com"}]}]};
-    # pagerduty:EscalationPolicy|pagerduty:Error response = escalations->createEscalationPolicy(escalationPolicy);
+    # pagerduty:EscalationPolicy|pagerduty:Error response = escalationPolicyClient->create(escalationPolicy);
     # ```
     #
     # + escalationPolicy - The escalation policy to be created.
@@ -337,7 +336,7 @@ public type EscalationPolicyClient client object {
 
     # Gets informations about a given existing escalation policy and its rules.
     # ```ballerina
-    # pagerduty:EscalationPolicy|pagerduty:Error? response = escalationPolicies->getEscalationPolicyById(<POLICY_ID>);
+    # pagerduty:EscalationPolicy|pagerduty:Error response = escalationPolicyClient->getById(<POLICY_ID>);
     # ```
     #
     # + escalationPolicyId -The escalation policy id, which to be update
@@ -348,7 +347,8 @@ public type EscalationPolicyClient client object {
 
     # Updates an existing escalation policy and rules.
     # ```ballerina
-    # pagerduty:Error? response = escalationPolicies->updateEscalationPolicy(<POLICY_ID>, <ESCALATION_POLICY>);
+    # pagerduty:EscalationPolicy|pagerduty:Error response = escalationPolicyClient->update(<POLICY_ID>,
+    #                                                                                       <ESCALATION_POLICY>);
     # ```
     #
     # + escalationPolicyId -The escalation policy id, which to be update
@@ -361,7 +361,7 @@ public type EscalationPolicyClient client object {
 
     # Removes an existing `EscalationPolicy`
     # ```ballerina
-    # pagerduty:EscalationPolicy|pagerduty:Error? response = escalationPolicies->getEscalationPolicyById(<POLICY_ID>);
+    # pagerduty:Error? response = escalationPolicyClient->delete(<POLICY_ID>);
     # ```
     #
     # + escalationPolicyId -The escalation policy id, which to be update
@@ -392,7 +392,7 @@ public type ScheduleClient client object {
     #                                 start: time, rotationTurnLengthInSeconds: 86400,
     #                                 rotationVirtualStart: time, users: [{'type: "user", name: "asha",
     #                                 email: "as@gmail.com"}]}]};
-    #  pagerduty:Schedule|pagerduty:Error? response = schedules->createSchedule(schedule);
+    #  pagerduty:Schedule|pagerduty:Error response = scheduleClient->create(schedule);
     # ```
     #
     # + schedule - The schedule, which to be created
@@ -407,7 +407,7 @@ public type ScheduleClient client object {
 
     # Retrives the all on-call schedules, optionally filtered by a query.
     # ```ballerina
-    # pagerduty:Schedule[]|pagerduty:Error response = schedules->getSchedules();
+    # pagerduty:Schedule[]|pagerduty:Error response = scheduleClient->get();
     # ```
     #
     # + query - The string value(eg: "Schedule" , "s" or etc), which is used to filter the schedules by name.
@@ -418,7 +418,7 @@ public type ScheduleClient client object {
 
     # Gets informations about a given existing escalation policy and its rules.
     # ```ballerina
-    # pagerduty:EscalationPolicy|pagerduty:Error? response = escalationPolicies->getEscalationPolicyById(<POLICY_ID>);
+    # pagerduty:Schedule|pagerduty:Error response = escalationPolicies->getById(<POLICY_ID>);
     # ```
     #
     # + scheduleId - The schedule id, which to be update
@@ -429,7 +429,7 @@ public type ScheduleClient client object {
 
     # Deletes an existing on-call schedule.
     # ```ballerina
-    # pagerduty:Error? response = schedules->deleteSchedule(<SCHEDULE_ID>);
+    # pagerduty:Error? response = schedules->delete(<SCHEDULE_ID>);
     # ```
     #
     # + scheduleId - The schedule id, which to be update
@@ -440,7 +440,7 @@ public type ScheduleClient client object {
     }
 };
 
-# The `pagerduty:ServiceClient` used to create/update|delete the services/integration.
+# The `pagerduty:ServiceClient` used to create/update|delete the service/integration.
 #
 # + serviceClient - The `pagerduty:ServiceClient`
 public type ServiceClient client object {
@@ -453,10 +453,10 @@ public type ServiceClient client object {
 
     # Creates a new service.
     # ```ballerina
-    # pagerduty:Service serv = { name: "service", escalationPolicy:{ "type": "escalationPolicy",
+    # pagerduty:Service 'service = { name: "service", escalationPolicy:{ "type": "escalationPolicy",
     #                            name: "Test", escalationRules: [{ escalationDelayInMinutes: 30, users: [
     #                            {'type: "user", name: "asha", email: "as@gmail.com"}};
-    # pagerduty:Service|pagerduty:Error response = services->createService(serv);
+    # pagerduty:Service|pagerduty:Error response = serviceClient->createService('service);
     # ```
     #
     # + service - The service to be created
@@ -468,7 +468,7 @@ public type ServiceClient client object {
     # Creates a new integration belonging to a Service.
     # ```ballerina
     # pagerduty:Integration integration = { 'type: "keynoteInboundIntegration", email: "test@wso34.pagerduty.com"};
-    # pagerduty:Error? response = services->createIntegration(serviceId, integration);
+    # agerduty:Integration|pagerduty:Error response = serviceClient->createIntegration(serviceId, integration);
     # ```
     #
     # + serviceId - The service id, which to be created integration
@@ -480,8 +480,7 @@ public type ServiceClient client object {
 
     # Updates an existing service.
     # ```ballerina
-    # pagerduty:Service|pagerduty:Error response = services->updateIntegration(<INTEGRATION_ID>, <SERVICE_ID>,
-    #                                                                           <UPDATE_SERVICE>);
+    # pagerduty:Service|pagerduty:Error response = serviceClient->updateService(<SERVICE_ID>, <UPDATE_SERVICE>);
     # ```
     #
     # + serviceId -The service id, which to be update
@@ -493,8 +492,8 @@ public type ServiceClient client object {
 
     # Updates an integration belonging to a Service.
     # ```ballerina
-    # pagerduty:Integration|pagerduty:Error? response = services->updateIntegration(<INTEGRATION_ID>, <SERVICE_ID>,
-    #                                                                               <UPDATE_INTEGRATION>);
+    # pagerduty:Integration|pagerduty:Error response = serviceClient->updateIntegration(<INTEGRATION_ID>, <SERVICE_ID>,
+    #                                                                                   <UPDATE_INTEGRATION>);
     # ```
     #
     # + integrationId - The integration id, which to be update
@@ -521,7 +520,7 @@ public type ServiceClient client object {
 
 # The `pagerduty:ExtensionClient` used to create/get/update/delete the extension.
 #
-# + extensionClient - The `pagerduty:ExtensionClient` client
+# + extensionClient - The `pagerduty:ExtensionClient`
 public type ExtensionClient client object {
 
     private http:Client extensionClient;
@@ -536,10 +535,10 @@ public type ExtensionClient client object {
     #                                   endpointUrl: "http://8bac231a.ngrok.io/webhooks",
     #                                   extensionSchema: {id: "PJFWPEP", 'type: "extensionSchemaReference",
     #                                   summary: "Generic V2 Webhook"}, 'services: [populatedService]};
-    # pagerduty:Extension|pagerduty:Error response = extensions->createExtension(extension);
+    # pagerduty:Extension|pagerduty:Error response = extensionClient->create(extension);
     # ```
     #
-    # + extension -The extension to be created
+    # + extension - The extension to be created
     # + return - A `pagerduty:Extension` or esle `pagerduty:Error` if any error occurred
     public remote function create(Extension extension) returns Extension|Error {
         return <@untainted> createExtension(self.extensionClient, extension);
@@ -547,19 +546,19 @@ public type ExtensionClient client object {
 
     # Updates an existing extension.
     # ```ballerina
-    # pagerduty:Extension|pagerduty:Error response = extensions->updateExtension(<EXTENSION_ID>, <UPDATE_EXTENSION>);
+    # pagerduty:Extension|pagerduty:Error response = extensionClient->update(<EXTENSION_ID>, <UPDATE_EXTENSION>);
     # ```
     #
-    # + extensionId -The extension id, which to be update
-    # + extension -The extension details which to be update
-    # + return -A `pagerduty:Extension` or esle `pagerduty:Error` if any error occurred
+    # + extensionId - The extension id, which to be update
+    # + extension - The extension details which to be update
+    # + return - A `pagerduty:Extension` or esle `pagerduty:Error` if any error occurred
     public remote function update(string extensionId, Extension extension) returns Extension|Error {
         return <@untainted> updateExtension(self.extensionClient, extensionId, extension);
     }
 
     # Gets details about any given existing extension.
     # ```ballerina
-    # pagerduty:Error|pagerduty:Extension response = extensions->getExtensionById(<EXTENSION_ID>);
+    # pagerduty:Error|pagerduty:Extension response = extensionClient->getById(<EXTENSION_ID>);
     # ```
     #
     # + extensionId -  The ID of the extension
@@ -570,7 +569,7 @@ public type ExtensionClient client object {
 
     # Deletes an existing extension.
     # ```ballerina
-    # pagerduty:Error? response = extensions->deleteExtension(<EXTENSION_ID>);
+    # pagerduty:Error? response = extensionClient->delete(<EXTENSION_ID>);
     # ```
     #
     # + extensionId -  The ID of the extension, which to be delete
@@ -600,7 +599,7 @@ public type IncidentClient client object {
     #                                 escalationPolicy:{ 'type: "escalationPolicy",
     #                                 name: "Test", escalationRules: [{ escalationDelayInMinutes: 30, users: [
     #                                 { 'type: "user", name: "asha", email: "as@gmail.com"}};
-    # pagerduty:Incident|pagerduty:Error response = incidents->createIncident(incident);
+    # pagerduty:Incident|pagerduty:Error response = incidentClient->createIncident(incident);
     # ```
     #
     # + incident - The incident to be created
@@ -615,7 +614,7 @@ public type IncidentClient client object {
 
     # Retrieves an incident by the ID.
     # ```ballerina
-    # pagerduty:Incident|pagerduty:Error? response = incidents->getIncidentById(<INCIDENT_ID>);
+    # pagerduty:Incident|pagerduty:Error response = incidentClient->getIncidentById(<INCIDENT_ID>);
     # ```
     #
     # + incidentId - Either the id or number of the incident to retrieve
@@ -626,8 +625,8 @@ public type IncidentClient client object {
 
     # Acknowledges, resolves, escalates or reassigns one or more incidents.
     # ```ballerina
-    # UpdateIncident[] incidents = {'type: "incidentReference", status: "acknowledged"};
-    # pagerduty:Incident[]|pagerduty:Error? response = incidents->manageIncidents(incidents);
+    # UpdateIncident[] incidents = [{'type: "incidentReference", status: "acknowledged"}];
+    # pagerduty:Incident[]|pagerduty:Error response = incidentClient->updateIncidents(incidents);
     # ```
     #
     # + incident - An array of incidents which including the parameters to update.
@@ -642,14 +641,14 @@ public type IncidentClient client object {
 
     # Updates an incident.
     # ```ballerina
-    # pagerduty:Incident|pagerduty:Error response = incidents->updateIncident(<UPDATE_INCIDENT>);
+    # UpdateIncident incident = {'type: "incidentReference", status: "acknowledged"};
+    # pagerduty:Incident|pagerduty:Error response = incidentClient->updateIncident(<UPDATE_INCIDENT>, incident);
     # ```
     #
     # + incident - The Incident details which to be update
     # + incidentId - The id of the incident
     # + return - A `pagerduty:Incident` or esle `pagerduty:Error` if any error occurred
-    public remote function updateIncident(string incidentId, Incident|json incident)
-                                 returns Incident|Error {
+    public remote function updateIncident(string incidentId, Incident|json incident) returns Incident|Error {
         if (self.emailId == "") {
             return <@untainted> Error(message = "Can't access the `updateIncident` operation without " +
                                       "logged-in user email id", cause = getError());
@@ -660,7 +659,7 @@ public type IncidentClient client object {
     # Creates a new note for the specified incident.
     # ```ballerina
     # pagerduty:Note note = {content: "Firefighters are on the scene."};
-    # pagerduty:Note|pagerduty:Error response = incidents->addNote(<INCIDENT_ID>, note);
+    # pagerduty:Note|pagerduty:Error response = incidentClient->addNote(<INCIDENT_ID>, note);
     # ```
     #
     # + incidentId - The Incident id
@@ -674,9 +673,9 @@ public type IncidentClient client object {
         return <@untainted> addNote(self.incidentClient, incidentId, note, self.emailId);
     }
 
-    # Snoozes a given incident by a certain time..
+    # Snoozes a given incident by a certain time.
     # ```ballerina
-    # pagerduty:Incident|pagerduty:Error response = incidents->snoozeIncident(<INCIDENT_ID>, <DURATION>);
+    # pagerduty:Incident|pagerduty:Error response = incidentClient->snoozeIncident(<INCIDENT_ID>, <DURATION>);
     # ```
     #
     # + incidentId - The Incident id
