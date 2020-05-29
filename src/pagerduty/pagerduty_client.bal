@@ -150,7 +150,7 @@ public type UserClient client object {
     # pagerduty:User|pagerduty:Error response = userClient->createUser(user);
     # ```
     #
-    # + user -  The user, which to be created
+    # + user - The user, which to be created
     # + return - A `pagerduty:User` or else a `pagerduty:Error` if any error occurred
     public remote function createUser(User user) returns User|Error {
         if (self.emailId == "") {
@@ -166,7 +166,7 @@ public type UserClient client object {
     # pagerduty:ContactMethod|pagerduty:Error response = userClient->createContactMethod(contactMethod);
     # ```
     #
-    # + contactMethod -  The contact method, which to be created
+    # + contactMethod - The contact method, which to be created
     # + userId -  The ID of the user
     # + return - A `pagerduty:ContactMethod` or else a `pagerduty:Error` if any error occurred
     public remote function createContactMethod(string userId, ContactMethod contactMethod)
@@ -181,8 +181,8 @@ public type UserClient client object {
     # pagerduty:NotificationRule|pagerduty:Error response = userClient->createNotificationRule(rule);
     # ```
     #
-    # + rule -  The notification rule to be created.
-    # + userId -  The ID of the user, which to be added the notification rule
+    # + rule - The notification rule to be created.
+    # + userId - The ID of the user, which to be added the notification rule
     # + return - A `pagerduty:NotificationRule` or else a `pagerduty:Error` if any error occurred
     public remote function createNotificationRule(string userId, NotificationRule rule) returns NotificationRule|Error {
         return <@untainted> createNotificationRule(self.userClient, userId, rule);
@@ -193,7 +193,7 @@ public type UserClient client object {
     # pagerduty:ContactMethod[]|pagerduty:Error response = userClient->getContactMethods(<USER_ID>);
     # ```
     #
-    # + userId -  The ID of the user, which to be added contact details
+    # + userId - The ID of the user, which to be added contact details
     # + return - The list of `pagerduty:ContactMethod` or else a `pagerduty:Error` if any error occurred
     public remote function getContactMethods(string userId) returns ContactMethod[]|Error {
         return <@untainted> getContactMethods(self.userClient, userId);
@@ -204,7 +204,7 @@ public type UserClient client object {
     # pagerduty:NotificationRule[]:pagerduty:Error response = userClient->getUserNotificationRules(<USER_ID>);
     # ```
     #
-    # + userId -  The ID of the user
+    # + userId - The ID of the user
     # + return - A list of `pagerduty:NotificationRule` or else a `pagerduty:Error` if any error occurred
     public remote function getUserNotificationRules(string userId) returns NotificationRule[]|Error {
         return <@untainted> getUserNotificationRules(self.userClient, userId);
@@ -229,7 +229,7 @@ public type UserClient client object {
     # pagerduty:User|pagerduty:Error response = userClient->getUserById(<USER_ID>);
     # ```
     #
-    # + userId -  The ID of the user
+    # + userId - The ID of the user
     # + return - A `pagerduty:User` or else a `pagerduty:Error` if any error  occurred
     public remote function getUserById(string userId) returns User|Error {
         return <@untainted> getUserById(self.userClient, userId);
@@ -241,8 +241,8 @@ public type UserClient client object {
     #                                                                                         <USER_ID>);
     # ```
     #
-    # + contactMethodId -  The ID of the contact meyhod
-    # + userId -  The ID of the user
+    # + contactMethodId - The ID of the contact meyhod
+    # + userId - The ID of the user
     # + return - A `pagerduty:ContactMethod` or else a `pagerduty:Error` if any error  occurred
     public remote function getUserContactMethodById(string contactMethodId, string userId) returns ContactMethod|Error {
         return <@untainted> getUserContactMethodById(self.userClient, contactMethodId, userId);
@@ -254,8 +254,8 @@ public type UserClient client object {
     #                                                                            <NOTIFICATION_RULE_ID>, <USER_ID>);
     # ```
     #
-    # + notificationRuleId -  The ID of the notification rule
-    # + userId -  The ID of the user
+    # + notificationRuleId - The ID of the notification rule
+    # + userId - The ID of the user
     # + return - A `pagerduty:NotificationRule` or else a `pagerduty:Error` if any error  occurred
     public remote function getUserNotificationRuleById(string notificationRuleId, string userId) returns
                                                     NotificationRule|Error {
@@ -267,8 +267,8 @@ public type UserClient client object {
     # pagerduty:Error? response = userClient->deleteUser(<USER_ID>);
     # ```
     #
-    # + userId -  The ID of the user
-    # + return -  A `pagerduty:Error` if any error occurred or else `nil`
+    # + userId - The ID of the user
+    # + return - A `pagerduty:Error` if any error occurred or else `nil`
     public remote function deleteUser(string userId) returns Error? {
         string path = USERS_PATH + BACK_SLASH + userId;
         return <@untainted> delete(self.userClient, path);
@@ -280,8 +280,8 @@ public type UserClient client object {
     # ```
     #
     # + contactMethodId -  The ID of the contact meyhod
-    # + userId -  The ID of the user
-    # + return -  A `pagerduty:Error` if any error occurred or else `nil`
+    # + userId - The ID of the user
+    # + return - A `pagerduty:Error` if any error occurred or else `nil`
     public remote function deleteContactMethod(string contactMethodId, string userId) returns Error? {
         string path = USERS_PATH + BACK_SLASH + userId + BACK_SLASH + CONTACT_METHODS_VAR + BACK_SLASH +
                       contactMethodId;
@@ -293,9 +293,9 @@ public type UserClient client object {
     # pagerduty:Error? response = userClient->deleteNotificationRule(<NOTIFICATION_RULE_ID>, <USER_ID>);
     # ```
     #
-    # + notificationRuleId -  The ID of the notification rule
-    # + userId -  The ID of the user
-    # + return -  A `pagerduty:Error` if any error occurred or else `nil`
+    # + notificationRuleId - The ID of the notification rule
+    # + userId - The ID of the user
+    # + return - A `pagerduty:Error` if any error occurred or else `nil`
     public remote function deleteNotificationRule(string notificationRuleId, string userId) returns Error? {
         string path = USERS_PATH + BACK_SLASH + userId + BACK_SLASH + NOTIFICATION_RULES_VAR + BACK_SLASH +
                                       notificationRuleId;
@@ -339,7 +339,7 @@ public type EscalationPolicyClient client object {
     # pagerduty:EscalationPolicy|pagerduty:Error response = escalationPolicyClient->getById(<POLICY_ID>);
     # ```
     #
-    # + escalationPolicyId -The escalation policy id, which to be update
+    # + escalationPolicyId - The escalation policy id, which to be update
     # + return - A `pagerduty:EscalationPolicy` or else a `pagerduty:Error` if any error  occurred
     public remote function getById(string escalationPolicyId) returns EscalationPolicy|Error {
         return <@untainted> getEscalationPolicyById(self.escalationPolicyClient, escalationPolicyId);
@@ -351,8 +351,8 @@ public type EscalationPolicyClient client object {
     #                                                                                       <ESCALATION_POLICY>);
     # ```
     #
-    # + escalationPolicyId -The escalation policy id, which to be update
-    # + escalationPolicy -The escalation policy details which to be update
+    # + escalationPolicyId - The escalation policy id, which to be update
+    # + escalationPolicy - The escalation policy details which to be update
     # + return - A `pagerduty:EscalationPolicy` or else a `pagerduty:Error` if any error  occurred
     public remote function update(string escalationPolicyId, EscalationPolicy escalationPolicy)
                                  returns EscalationPolicy|Error {
@@ -364,7 +364,7 @@ public type EscalationPolicyClient client object {
     # pagerduty:Error? response = escalationPolicyClient->delete(<POLICY_ID>);
     # ```
     #
-    # + escalationPolicyId -The escalation policy id, which to be update
+    # + escalationPolicyId - The escalation policy id, which to be update
     # + return - A `pagerduty:Error` if any error occurred or `nil`
     public remote function delete(string escalationPolicyId) returns Error? {
         string path = ESCALATION_POLICES_PATH + BACK_SLASH + escalationPolicyId;
@@ -483,8 +483,8 @@ public type ServiceClient client object {
     # pagerduty:Service|pagerduty:Error response = serviceClient->updateService(<SERVICE_ID>, <UPDATE_SERVICE>);
     # ```
     #
-    # + serviceId -The service id, which to be update
-    # + service -The service details which to be update
+    # + serviceId - The service id, which to be update
+    # + service - The service details which to be update
     # + return - A `pagerduty:Error` if any error occurred or else `nil`
     public remote function updateService(string serviceId, Service 'service) returns Service|Error {
         return <@untainted> updateService(self.serviceClient, serviceId, 'service);
@@ -510,7 +510,7 @@ public type ServiceClient client object {
     # pagerduty:Error? response = services->deleteService(<SERVICE_ID>);
     # ```
     #
-    # + serviceId -The service id, which to be delete
+    # + serviceId - The service id, which to be delete
     # + return - A `pagerduty:Error` if any error occurred or else `nil`
     public remote function deleteService(string serviceId) returns Error? {
         string path = SERVICES_PATH + BACK_SLASH + serviceId;
@@ -561,7 +561,7 @@ public type ExtensionClient client object {
     # pagerduty:Error|pagerduty:Extension response = extensionClient->getById(<EXTENSION_ID>);
     # ```
     #
-    # + extensionId -  The ID of the extension
+    # + extensionId - The ID of the extension
     # + return - A `pagerduty:Extension` or esle `pagerduty:Error` if any error occurred
     public remote function getById(string extensionId) returns Extension|Error {
         return <@untainted> getExtensionById(self.extensionClient, extensionId);
