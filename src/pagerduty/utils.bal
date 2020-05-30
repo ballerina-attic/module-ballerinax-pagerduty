@@ -166,11 +166,10 @@ function updateEscalationPolicy(http:Client escalationPolicyClient, string escal
     }
 }
 
-function createSchedule(http:Client scheduleClient, Schedule schedule, boolean overflow, string emailId)
+function createSchedule(http:Client scheduleClient, Schedule schedule, boolean overflow)
                 returns Schedule|Error {
     string path = SCHEDULE_PATH + OVERFLOW + overflow.toString();
     http:Request request = new;
-    request.setHeader(FROM, emailId);
     setJsonPayload(<@untainted> map<json>.constructFrom(scheduleToPayload(schedule)), request, SCHEDULE);
     map<json>|error resp = post(scheduleClient, request, path);
     if (resp is map<json>) {

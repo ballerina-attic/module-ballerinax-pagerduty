@@ -416,8 +416,7 @@ public type Extension record {|
     string url?;
     string htmlUrl?;
 |};
-// todo
-// read only
+
 # Represents a pager duty incident.
 #
 # + id - The ID of the incident

@@ -26,7 +26,6 @@ import ballerina/log;
 # + scheduleClient - The `ScheduleClient` client
 # + extensionClient - The `ExtensionClient` client
 # + incidentClient - The `IncidentClient` client
-# + emailId - The email id for the logged-in user
 public type Account object {
 
     private http:Client pagerduty;
@@ -36,7 +35,6 @@ public type Account object {
     private ServiceClient serviceClient;
     private ExtensionClient extensionClient;
     private IncidentClient incidentClient;
-    private string emailId = "";
 
     public function __init(string apiToken) {
         oauth2:OutboundOAuth2Provider oauth2Provider = new({accessToken: apiToken});
@@ -47,27 +45,26 @@ public type Account object {
             }
         };
         self.pagerduty = new(BASE_URL, config = {auth: {authHandler: oauth2Handler}});
-        self.userClient = new(self.pagerduty);
-        self.escalationPolicyClient = new(self.pagerduty);
-        self.scheduleClient = new(self.pagerduty);
-        self.serviceClient = new(self.pagerduty);
-        self.extensionClient = new(self.pagerduty);
-        self.incidentClient = new(self.pagerduty);
 
         // Sets logged-in emailID to `pagerDuty:UserClient`, `pagerDuty:EscalationPolicies` and
         // `pagerDuty:Incidents` clients.
+        string emailId = "";
         string path = CURRENT_USER_PATH;
         json|Error resp = get(self.pagerduty, path);
         if (resp is json) {
             map<json> mapJsonRes = <map<json>> resp;
-            map<json> user = <map<json>>mapJsonRes[USER];
-            self.emailId = user[EMAIL].toString();
-            self.userClient.emailId = self.emailId;
-            self.escalationPolicyClient.emailId = self.emailId;
-            self.incidentClient.emailId = self.emailId;
+            map<json> user = <map<json>>(mapJsonRes[USER].cloneReadOnly());
+            emailId = user[EMAIL].toString();
         } else {
             log:printError("Error occurred while getting the logged-in user email ID" , resp);
         }
+
+        self.userClient = new(self.pagerduty, emailId);
+        self.escalationPolicyClient = new(self.pagerduty, emailId);
+        self.scheduleClient = new(self.pagerduty);
+        self.serviceClient = new(self.pagerduty);
+        self.extensionClient = new(self.pagerduty);
+        self.incidentClient = new(self.pagerduty, emailId);
     }
 
     # Retrieves the `pagerduty:UserClient`.
@@ -138,10 +135,11 @@ public type Account object {
 public type UserClient client object {
 
     private http:Client userClient;
-    public string emailId = "";
+    private string emailId = "";
 
-    function __init(http:Client pagerDuty) {
+    function __init(http:Client pagerDuty, string emailId) {
         self.userClient = pagerDuty;
+        self.emailId = emailId;
     }
 
     # Creates a new user.
@@ -310,10 +308,11 @@ public type UserClient client object {
 public type EscalationPolicyClient client object {
 
     private http:Client escalationPolicyClient;
-    public string emailId = "";
+    private string emailId = "";
 
-    function __init(http:Client pagerDuty) {
+    function __init(http:Client pagerDuty, string emailId) {
         self.escalationPolicyClient = pagerDuty;
+        self.emailId = emailId;
     }
 
     # Creates a new escalation policy.
@@ -376,11 +375,9 @@ public type EscalationPolicyClient client object {
 # The `pagerduty:ScheduleClient` used to create/get/delete the schedule.
 #
 # + scheduleClient - The `pagerduty:ScheduleClient`
-# + emailId - The email id for the logged-in user
 public type ScheduleClient client object {
 
     private http:Client scheduleClient;
-    public string emailId = "";
 
     function __init(http:Client pagerDuty) {
         self.scheduleClient = pagerDuty;
@@ -402,7 +399,7 @@ public type ScheduleClient client object {
     #              one schedule entry returned with a start of `2020-05-16T00:00:00Z` and end of `2020-05-17T00:00:00Z`.
     # + return - A `pagerduty:Schedule` or else a `pagerduty:Error` if any error occurred
     public remote function create(Schedule schedule, boolean overflow = false) returns Schedule|Error {
-        return <@untainted> createSchedule(self.scheduleClient, schedule, overflow, self.emailId);
+        return <@untainted> createSchedule(self.scheduleClient, schedule, overflow);
     }
 
     # Retrives the all on-call schedules, optionally filtered by a query.
@@ -587,10 +584,11 @@ public type ExtensionClient client object {
 public type IncidentClient client object {
 
     private http:Client incidentClient;
-    public string emailId = "";
+    private string emailId = "";
 
-    function __init(http:Client pagerDuty) {
+    function __init(http:Client pagerDuty, string emailId) {
        self.incidentClient = pagerDuty;
+       self.emailId = emailId;
     }
 
     # Creates a new incident.

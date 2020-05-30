@@ -15,7 +15,9 @@ jobs:
               uses: ballerina-platform/ballerina-action/@master
               with:
                   args:
-                      build -a -c --skip-tests 
+                      build -a -c
+              env:
+                  PAGERDUTY_API_TOKEN: ${{ secrets.PAGERDUTY_API_TOKEN }}
                                    
             - name: Ballerina Push
               uses: ballerina-platform/ballerina-action/@master

@@ -14,10 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
+import ballerina/system;
 import ballerina/test;
 import ballerina/time;
 
-Account pagerduty = new("PERSONAL_USER_TOKEN");
+string API_TOKEN = system:getEnv("PAGERDUTY_API_TOKEN") == "" ? config:getAsString("PAGERDUTY_API_TOKEN") :
+                   system:getEnv("PAGERDUTY_API_TOKEN");
+Account pagerduty = new(API_TOKEN);
 UserClient userClient = pagerduty.getUserClient();
 EscalationPolicyClient escalationClient = pagerduty.getEscalationPolicyClient();
 ScheduleClient scheduleClient = pagerduty.getScheduleClient();

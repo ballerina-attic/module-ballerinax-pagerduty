@@ -12,10 +12,16 @@
 
 ## Running the tests
 
-1. Configure the `Account` in the `main_test.bal` file to add the `Personal REST API Key`.
+You can use the `tests.bal` file to test all the connector actions by following the below steps:
 
-2. Execute the following commands inside the root folder.
-
-    ```cmd
-    $ ballerina build -c  pagerduty
-    ```
+- Create `ballerina.conf` file in the module-ballerinax-pagerduty.
+- Obtain the `personal API key` as mentioned above and add that values in the ballerina.conf file.
+    ```ballerina
+    PAGERDUTY_API_TOKEN = "USER_API_TOKEN"
+  ```ballerina
+    
+- Navigate to the folder module--ballerinax-pagerduty.
+- Run the following commands to execute the tests.
+   ```ballerina
+   ballerina test pagerduty --b7a.config.file=<ballerina_conf-file_path>
+   ```
