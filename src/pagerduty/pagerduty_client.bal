@@ -569,7 +569,7 @@ public type ExtensionClient client object {
     # pagerduty:Error? response = extensionClient->delete(<EXTENSION_ID>);
     # ```
     #
-    # + extensionId -  The ID of the extension, which to be delete
+    # + extensionId -  The ID of the extension to be deleted
     # + return - A `pagerduty:Error` if any error occurred or else `()`
     public remote function delete(string extensionId) returns Error? {
         string path = EXTENSION_PATH + BACK_SLASH + extensionId;
@@ -577,7 +577,8 @@ public type ExtensionClient client object {
     }
 };
 
-# The `pagerduty:IncidentClient` is used to create/get/update/manage/delete/snooze the incidents and add note into that.
+# The `pagerduty:IncidentClient` is used to create/get/update/manage/delete/snooze the incidents and
+# add a note into that.
 #
 # + incidentClient - The `pagerduty:IncidentClient` client
 # + emailId - The email ID of the logged-in user
@@ -601,7 +602,7 @@ public type IncidentClient client object {
     # ```
     #
     # + incident - The incident to be created
-    # + return - A `pagerduty:Incident` or esle `pagerduty:Error` if any error occurred
+    # + return - A `pagerduty:Incident` or else a `pagerduty:Error` if any error occurred
     public remote function createIncident(Incident incident) returns Incident|Error {
         if (self.emailId == "") {
             return <@untainted> Error(message = "Can't access the `createIncident` operation without logged-in" +
@@ -615,20 +616,20 @@ public type IncidentClient client object {
     # pagerduty:Incident|pagerduty:Error response = incidentClient->getIncidentById(<INCIDENT_ID>);
     # ```
     #
-    # + incidentId - Either the id or number of the incident to retrieve
-    # + return - A `pagerduty:Incident` or esle `pagerduty:Error` if any error occurred
+    # + incidentId - Either the ID or number of the incident to be retrieved
+    # + return - A `pagerduty:Incident` or else a `pagerduty:Error` if any error occurred
     public remote function getIncidentById(string incidentId) returns Incident|Error {
         return <@untainted> getIncidentById(self.incidentClient, incidentId);
     }
 
-    # Acknowledges, resolves, escalates or reassigns one or more incidents.
+    # Acknowledges, resolves, escalates, or reassigns one or more incidents.
     # ```ballerina
     # UpdateIncident[] incidents = [{'type: "incidentReference", status: "acknowledged"}];
     # pagerduty:Incident[]|pagerduty:Error response = incidentClient->updateIncidents(incidents);
     # ```
     #
-    # + incident - An array of incidents which including the parameters to update.
-    # + return - A list of `pagerduty:Incident` or esle `pagerduty:Error` if any error occurred
+    # + incident - An array of incidents, which include the parameters to update
+    # + return - A list of `pagerduty:Incident`s or else a `pagerduty:Error` if any error occurred
     public remote function updateIncidents(Incident[]|json[] incident) returns Incident[]|Error {
         if (self.emailId == "") {
             return <@untainted> Error(message = "Can't access the `updateIncidents` operation without logged-in " +
@@ -643,9 +644,9 @@ public type IncidentClient client object {
     # pagerduty:Incident|pagerduty:Error response = incidentClient->updateIncident(<UPDATE_INCIDENT>, incident);
     # ```
     #
-    # + incident - The Incident details to be update
-    # + incidentId - The id of the incident
-    # + return - A `pagerduty:Incident` or esle `pagerduty:Error` if any error occurred
+    # + incident - The incident details to be updated
+    # + incidentId - The ID of the incident
+    # + return - A `pagerduty:Incident` or else a `pagerduty:Error` if any error occurred
     public remote function updateIncident(string incidentId, Incident|json incident) returns Incident|Error {
         if (self.emailId == "") {
             return <@untainted> Error(message = "Can't access the `updateIncident` operation without " +
@@ -660,9 +661,9 @@ public type IncidentClient client object {
     # pagerduty:Note|pagerduty:Error response = incidentClient->addNote(<INCIDENT_ID>, note);
     # ```
     #
-    # + incidentId - The Incident id
+    # + incidentId - The incident ID
     # + note - The note to be created
-    # + return - A `pagerduty:Note` or esle `pagerduty:Error` if any error occurred
+    # + return - A `pagerduty:Note` or else a `pagerduty:Error` if any error occurred
     public remote function addNote(string incidentId, Note note) returns Note|Error {
         if (self.emailId == "") {
             return <@untainted> Error(message = "Can't access the `addNote` operation without logged-in user email id",
@@ -671,14 +672,14 @@ public type IncidentClient client object {
         return <@untainted> addNote(self.incidentClient, incidentId, note, self.emailId);
     }
 
-    # Snoozes a given incident by a certain time.
+    # Snoozes a given incident at a certain time.
     # ```ballerina
     # pagerduty:Incident|pagerduty:Error response = incidentClient->snoozeIncident(<INCIDENT_ID>, <DURATION>);
     # ```
     #
-    # + incidentId - The Incident id
+    # + incidentId - The incident ID
     # + durationInSeconds - The amount of time in seconds to snooze the incident
-    # + return - A `pagerduty:Incident` or esle `pagerduty:Error` if any error occurred
+    # + return - A `pagerduty:Incident` or else a `pagerduty:Error` if any error occurred
     public remote function snoozeIncident(string incidentId, int durationInSeconds) returns Incident|Error {
         if (self.emailId == "") {
             return <@untainted> Error(message = "Can't access the `snoozeIncident` operation without logged-in " +

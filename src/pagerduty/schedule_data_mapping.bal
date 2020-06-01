@@ -181,7 +181,7 @@ function convertToRestriction(map<json> input) returns Restriction {
             restriction.'type  = WEEKLY_RESTRICTION;
         }
     }
-    setTimeFromString(input[START_TIME_OF_DAY_VAR], restriction, START_TIME_OF_DAY);
+    setTime(input[START_TIME_OF_DAY_VAR], restriction, START_TIME_OF_DAY);
     addInt(input[DURATION_IN_SEC_VAR], restriction, DURATION_IN_SEC);
     addInt(input[START_DAY_OF_WEEK_VAR], restriction, START_DAY_OF_WEEK);
     return restriction;
@@ -305,7 +305,7 @@ function restrictionToPayload(Restriction restriction) returns map<json> {
     } else if (value == WEEKLY_RESTRICTION) {
         payload[TYPE] = WEEKLY_RESTRICTION_VAR;
     }
-    addStringTime(restriction[START_TIME_OF_DAY], payload, START_TIME_OF_DAY_VAR);
+    payload[START_TIME_OF_DAY_VAR] = addTime(restriction[START_TIME_OF_DAY]);
     addIntToPayload(restriction[DURATION_IN_SEC], payload, DURATION_IN_SEC_VAR);
     addIntToPayload(restriction[START_DAY_OF_WEEK], payload, START_DAY_OF_WEEK_VAR);
     return payload;

@@ -16,28 +16,28 @@
 
 import ballerina/time;
 
-# Represents a pager duty user.
+# Represents a PagerDuty user.
 #
 # + name - The name of the user
 # + email - The user's email address
-# + type - The type of the object, which can take `user`, or `userReference`. Default value is `user`
+# + type - The type of the object:`user` or `userReference`. The default value is `user`
 # + id - The ID of the user
-# + timeZone - The preferred time zone name(e.g Asia/Colombo). If null, the account's time zone will be used
+# + timeZone - The preferred time zone name (e.g., Asia/Colombo). If '()', the account's time zone will be used
 # + color - The schedule color
-# + avatarUrl - The url of the user’s avatar
+# + avatarUrl - The URL of the user’s avatar
 # + url - A URL at which the object is accessible
 # + description - The user's bio
-# + role - The user role, which can take `admin`, `limitedUser`, `observer`, `owner`, `readOnlyUser`,
-#          `restrictedAccess`, `readOnlyLimitedUser`, or `user`
+# + role - The user role: `admin`, `limitedUser`, `observer`, `owner`, `readOnlyUser`, `restrictedAccess`,
+#          `readOnlyLimitedUser`, or `user`
 # + invitationSent - If true, the user has an outstanding invitation
 # + jobTitle - The user's job title
 # + htmlUrl - A URL at which the entity is uniquely displayed in the Web app
 # + summary -  A short-form, server-generated string that provides succinct, important information about an
 #              object suitable for primary labeling of an entity in a client
 # + teams - The list of teams to which the user belongs
-# + contactMethods - The list of contact methods for this user
-# + notificationRules - The list of notification rules for this user
-# + coordinatedIncidents - The list of incidents for this user
+# + contactMethods - The list of contact methods of this user
+# + notificationRules - The list of notification rules of this user
+# + coordinatedIncidents - The list of incidents of this user
 public type User record {|
     string name;
     string email;
@@ -59,14 +59,14 @@ public type User record {|
     Incident[] coordinatedIncidents?;
 |};
 
-# Represents a common pager duty property.
+# Represents a common Pager Duty property.
 #
-# + type  - A string that determines the schema of the object
+# + type  - A string, which determines the schema of the object
 # + id - The ID of the object
-# + summary -  A short-form, server-generated string that provides succinct, important information about an
+# + summary -  A short-form, server-generated string, which provides succinct, important information about an
 #              object suitable for primary labeling of an entity in a client
-# + url - A URL at which the object is accessible
-# + htmlUrl - A URL at which the entity is uniquely displayed in the Web app
+# + url - A URL by which the object is accessible
+# + htmlUrl - A URL by which the entity is displayed uniquely in the Web app
 public type CommonRecord record {|
     Type 'type;
     string id;
@@ -75,18 +75,17 @@ public type CommonRecord record {|
     string htmlUrl?;
 |};
 
-# Represents a pager duty contact method.
+# Represents a Pager Duty contact method.
 #
-# + type  - A string that determines the schema of the object, which can take `email`, `phone`, `pushNotification`, or
-#           `sms`
-# + address - The "address" to deliver to: email, phone number, etc., depending on the type.
+# + type  - A string, which determines the schema of the object:`email`, `phone`, `pushNotification`, or `sms`
+# + address - The "address" to deliver: email, phone number, etc. depending on the type.
 # + id - The ID of the contact method
-# + label -  The label, which can take `work`, `mobile`, `home` or `skype`
+# + label -  The label, which can take `work`, `mobile`, `home`, or `skype`
 # + countryCode - A country code of the phone number
-# + summary -  A short-form, server-generated string that provides succinct, important information about an
+# + summary -  A short-form, server-generated string, which provides succinct, important information about an
 #              object suitable for primary labeling of an entity in a client
-# + url - A URL at which the object is accessible
-# + htmlUrl - A URL at which the entity is uniquely displayed in the Web app
+# + url - A URL by which the object is accessible
+# + htmlUrl - A URL by which the entity is displayed uniquely in the Web app
 # + enabled - If true, this phone is capable of receiving SMS messages
 # + blacklisted - If true, this phone has been blacklisted by PagerDuty and no messages will be sent to it
 # + sendShortEmail - if true, send an abbreviated email message instead of the standard email output
@@ -104,17 +103,17 @@ public type ContactMethod record {|
     boolean sendShortEmail?;
 |};
 
-# Represents a pager duty notification rule.
+# Represents a Pager Duty notification rule.
 #
 # + startDelayInMinutes - The delay before firing the rule in minutes.
 # + contactMethod - A contact method
-# + type  - A string that determines the schema of the object. Must be set to `assignmentNotificationRule`
+# + type  - A string, which determines the schema of the object. Must be set to `assignmentNotificationRule`
 # + id - The ID of the notification rule
-# + urgency - The urgency of the incident, which can take  `high`, or `low`
-# + summary -  A short-form, server-generated string that provides succinct, important information about an
+# + urgency - The urgency of the incident:`high` or `low`
+# + summary -  A short-form, server-generated string, which provides succinct, important information about an
 #              object suitable for primary labeling of an entity in a client
-# + url - A URL at which the object is accessible
-# + htmlUrl - A URL at which the entity is uniquely displayed in the Web app
+# + url - A URL by which the object is accessible
+# + htmlUrl - A URL by which the entity is displayed uniquely in the Web app
 public type NotificationRule record {|
     int startDelayInMinutes;
     ContactMethod contactMethod;
@@ -126,23 +125,23 @@ public type NotificationRule record {|
     string htmlUrl?;
 |};
 
-# Represents a pager duty escalation policy.
+# Represents a Pager Duty escalation policy.
 #
 # + name - The name of the escalation policy
 # + escalationRules - An `EscalationRule`
-# + type  - The type of `EscalationPolicy`, which can take a value `escalationPolicy`
+# + type  - The type of the `EscalationPolicy`: an `escalationPolicy` value
 # + id - The ID of the notification rule
-# + summary -  A short-form, server-generated string that provides succinct, important information about an
+# + summary -  A short-form, server-generated string, which provides succinct, important information about an
 #              object suitable for primary labeling of an entity in a client
-# + url - A URL at which the object is accessible
+# + url - A URL by which the object is accessible
 # + description - A human-friendly description of the escalation policy
-# + htmlUrl - A URL at which the entity is uniquely displayed in the Web app
+# + htmlUrl - A URL by which the entity is displayed uniquely in the Web app
 # + numberOfloops - The number of times the escalation policy will repeat after reaching the end of its escalation
 # + services - The list of services
-# + teams - Teams associated with the policy. Account must have the teams ability to use this parameter
-# + onCallHandoffNotifications - Determines how on call handoff notifications will be sent for users
-#                               on the escalation policy, which can take  `ifHasServices`, or `always`).
-#                               Defaults value is  `ifHasServices`
+# + teams - Teams associated with the policy. The teams of the account must have the ability to use this parameter
+# + onCallHandoffNotifications - Determines the frequency of sending the on-call, handoff notifications for users
+#                                of the escalation policy: `ifHasServices` or `always`).
+#                                The default value is  `ifHasServices`
 public type EscalationPolicy record {|
       string name;
       EscalationRule[] escalationRules;
@@ -158,10 +157,10 @@ public type EscalationPolicy record {|
       CommonRecord[] teams?;
 |};
 
-# Represents a pager duty escalation rule.
+# Represents a Pager Duty escalation rule.
 #
-# + escalationDelayInMinutes - The number of minutes before an unacknowledged incident escalates away from this rule
-# + targets - The list of `CommonRecord` which type can take `user`, `schedule`, `userReference`, or `scheduleReference`
+# + escalationDelayInMinutes - The number of minutes before an unacknowledged incident escalates from this rule
+# + targets - The list of `CommonRecord`s type: `user`, `schedule`, `userReference`, or `scheduleReference`
 # + id - An ID of the notification rule
 public type EscalationRule record {|
     int escalationDelayInMinutes;
@@ -169,24 +168,24 @@ public type EscalationRule record {|
     string id?;
 |};
 
-# Represents a pager duty schedule.
+# Represents a Pager Duty schedule.
 #
-# + type - The type of schedule object, which can take `schedule`, or `scheduleReference`
-# + timeZone - The time zone of the schedule(e.g Asia/Colombo)
-# + scheduleLayers - A list of schedule layers.
+# + type - The type of the schedule object: `schedule` or `scheduleReference`
+# + timeZone - The time zone of the schedule (e.g., Asia/Colombo)
+# + scheduleLayers - A list of schedule layers
 # + id - An ID of the notification rule
 # + name - The name of the schedule
-# + summary -  A short-form, server-generated string that provides succinct, important information about an
+# + summary -  A short-form, server-generated string, which provides succinct, important information about an
 #              object suitable for primary labeling of an entity in a client
-# + url - A URL at which the object is accessible
-# + htmlUrl - A URL at which the entity is uniquely displayed in the Web app
+# + url - A URL by which the object is accessible
+# + htmlUrl - A URL by which the entity is displayed uniquely in the Web app
 # + description - The description of the schedule
-# + escalationPolicies - An array of all of the escalation policies that uses this schedule
-# + finalSchedule - The final layer is a special layer that contains the result of all of the previous layers put
+# + escalationPolicies - An array of all of the escalation policies, which use this schedule
+# + finalSchedule - The final layer is a special layer, which contains the result of all of the previous layers put
 #                   together.
-# + overridesSubschedule - The override layer is a special layer where all of the override entries are stored
-# + users - An array of all of the users on the schedule.
-# + teams - An array of all of the teams on the schedule.
+# + overridesSubschedule - The override layer is a special layer in which all of the override entries are stored
+# + users - An array of all of the users of the schedule
+# + teams - An array of all of the teams of the schedule
 public type Schedule record {|
     string 'type;
     string timeZone;
@@ -204,11 +203,11 @@ public type Schedule record {|
     CommonRecord[] teams?;
 |};
 
-# Represents a pager duty schedule layer.
+# Represents a Pager Duty schedule layer.
 #
 # + start - The start time of this layer
-# + users - The ordered list of users on this layer. The position of the user on the list determines
-#           their order in the layer
+# + users - The ordered list of users of this layer. The position of the user on the list determines
+#           its order in the layer
 # + rotationVirtualStart - The effective start time of the layer
 # + rotationTurnLengthInSeconds - The duration of each on-call shift in seconds
 # + name - The name of the schedule layer
@@ -230,13 +229,13 @@ public type ScheduleLayer record {|
     int renderedCoveragePercentage?;
 |};
 
-# Represents a pager duty restriction.
+# Represents a Pager Duty restriction.
 #
-# + type - The type of the restriction, which can take `dailyRestriction`, or `weeklyRestriction`
-# + startDayOfWeek - The number of the day when restriction starts(From 1 to 7 where 1 is Monday and 7 is Sunday).
-#                    Only required for use with a `weeklyRestriction`
+# + type - The type of the restriction: `dailyRestriction` or `weeklyRestriction`
+# + startDayOfWeek - The number of the day on when the restriction starts (e.g., from 1 to 7 where 1 is Monday
+#                    and 7 is Sunday). This is required only to be used with a `weeklyRestriction`
 # + durationInSeconds - The duration of the restriction in seconds
-# + startTimeOfDay - The start time in HH:mm:ss format
+# + startTimeOfDay - The start time in the 'HH:mm:ss' format
 public type Restriction record {|
     Type 'type;
     time:Time startTimeOfDay;
@@ -244,9 +243,9 @@ public type Restriction record {|
     int startDayOfWeek?;
 |};
 
-# Represents a pager duty final schedule.
+# Represents a Pager dDuty final schedule.
 #
-# + name - The name of the subschedule, which can take `finalSchedule`, or `overrides`
+# + name - The name of the sub-schedule: `finalSchedule` or `overrides`
 # + renderedScheduleEntries - This is a list of entries on the computed layer for the current time range
 # + renderedCoveragePercentage - The percentage of the time range covered by this layer
 public type FinalSchedule record {|
@@ -255,10 +254,10 @@ public type FinalSchedule record {|
     int renderedCoveragePercentage?;
 |};
 
-# Represents a pager duty rendered schedule entries.
+# Represents the schedule entries that are rendered by Pager Duty.
 #
 # + start - The start time of this entry
-# + end -  The end time of this entry. If null, the entry does not end
+# + end -  The end time of this entry. If '()', the entry does not end
 # + user - The user
 public type RenderedScheduleEntry record {|
     time:Time 'start;
@@ -266,34 +265,35 @@ public type RenderedScheduleEntry record {|
     User user?;
 |};
 
-# Represents a pager duty service.
+# Represents a Pager Duty service.
 #
 # + name - The name of the service
 # + escalationPolicy - The escalation policy used by this service
-# + type - The type of service, which can take  `service`, or `serviceReference`
+# + type - The type of service: `service` or `serviceReference`
 # + id -  An ID of the service
 # + description - The user-provided description of the service
-# + autoResolveTimeout - Time in seconds that an incident is automatically resolved if left open for that long
-# + acknowledgementTimeout - Time in seconds that an incident changes to the Triggered State after being Acknowledged.
+# + autoResolveTimeout - Time in seconds in which an incident is resolved automatically if left open for that long
+# + acknowledgementTimeout - Time in seconds in which an incident changes to the triggered state after being
+#                            acknowledged
 # + createdAt - The date/time when this service was created
 # + updatedAt - The date/time when this service was updated
 # + status - The current state of the service
-# + summary -  A short-form, server-generated string that provides succinct, important information about an
+# + summary -  A short-form, server-generated string, which provides succinct, important information about an
 #              object suitable for primary labeling of an entity in a client
-# + url - A URL at which the object is accessible
-# + htmlUrl - A URL at which the entity is uniquely displayed in the Web app
+# + url - A URL by which the object is accessible
+# + htmlUrl - A URL by which the entity is displayed uniquely in the Web app
 # + lastIncidentTimestamp - The date/time when the most recent incident was created for this service
 # + teams - The set of teams associated with this service
-# + integrations - An array containing Integration objects that belong to this service.
+# + integrations - An array containing the integration objects, which belong to this service
 # + incidentUrgencyRule - The default urgency for new incidents
-# + supportHours - The support hours for the service. When using type = `useSupportHours` in `incidentUrgencyRule`,
-#                  you must specify exactly one, otherwise optional
-# + scheduledActions - An array containing scheduled actions for the service.
-# + addons -  The array of Add-ons associated with this service.
-# + alertCreation - Whether a service creates only incidents, or both alerts and incidents, , which can take
-#                   `createIncidents`, or `createAlertsAndIncidents`)
+# + supportHours - The support hours for the service. When using type = `useSupportHours` in the `incidentUrgencyRule`,
+#                  specify exactly one. Otherwise, this is optional
+# + scheduledActions - An array containing the scheduled actions for the service
+# + addons -  The array of the add-ons associated with this service
+# + alertCreation - Whether a service creates only incidents or both alerts and incidents: `createIncidents` or
+#                   `createAlertsAndIncidents`
 # + alertGrouping -  Defines how alerts on this service will be automatically grouped into incidents
-# + alertGroupingTimeout - The duration in minutes within which to automatically group incoming alerts.
+# + alertGroupingTimeout - The duration (in minutes) within which the incoming alerts will be grouped automatically
 public type Service record {|
     string name;
     EscalationPolicy escalationPolicy;
@@ -320,12 +320,12 @@ public type Service record {|
     int alertGroupingTimeout?;
 |};
 
-# Represents a pager duty incident urgency rule.
+# Represents an urgency rule of a Pager Duty incident.
 #
-# + type -  The type of incident urgency, which can take  `constant`, or `useSupportHours`
-# + urgency - The incidents' urgency, which can take  `high`, `low` or `severityBased`
-# + duringSupportHours - Incidents' urgency during support hours
-# + outsideSupportHours - Incidents' urgency outside of support hours
+# + type -  The type of the incident urgency:`constant` or `useSupportHours`
+# + urgency - The incidents' urgency:`high`, `low`, or `severityBased`
+# + duringSupportHours - The incidents' urgency during support hours
+# + outsideSupportHours - The incidents' urgency outside of support hours
 public type IncidentUrgencyRule record {|
     Type 'type?;
     Urgency urgency?;
@@ -333,22 +333,22 @@ public type IncidentUrgencyRule record {|
     IncidentSupportHour outsideSupportHours?;
 |};
 
-# Represents a pager duty incident support hours.
+# Represents the support hours of a Pager Duty incident.
 #
-# + type -  The type of incident urgency
-# + urgency - The incidents' urgency, which can take `high` or `low`
+# + type -  The type of the incident urgency
+# + urgency - The incidents' urgency: `high` or `low`
 public type IncidentSupportHour record {|
   Type 'type?;
   Urgency urgency?;
 |};
 
-# Represents a pager duty support hours.
+# Represents the support hours of Pager Duty .
 #
-# + type - The type of support hours, which can take `fixedTimePerDay`
-# + timeZone - The time zone for the support hours(e.g Asia/Colombo)
-# + daysOfWeek - Array of days of week as integers. (Valid options: 1 to 7, 1 being Monday and 7 being Sunday)
-# + startTime - The support hours' starting time of day. (Valid format: "HH:mm:00")
-# + endTime - The support hours' ending time of day. (Valid format: "HH:mm:00")
+# + type - The type of the support hours: `fixedTimePerDay`
+# + timeZone - The time zone of the support hours (e.g., Asia/Colombo)
+# + daysOfWeek - Array of the days of the week as integers (valid options: 1 to 7 with 1 being Monday and 7 being Sunday)
+# + startTime - The starting time of the day during the support hours (valid format: "HH:mm:00")
+# + endTime - The ending time of the day during the support hours (valid format: "HH:mm:00")
 public type SupportHour record {|
     string 'type?;
     string timeZone?;
@@ -357,30 +357,29 @@ public type SupportHour record {|
     time:Time endTime?;
 |};
 
-# Represents a pager duty incident schedule action.
+# Represents a schedule action of a Pager Duty.
 #
-# + type - The type of scheduled action, which can take `urgencyChange`
-# + at - Represents when scheduled action will occur
-# + urgency - The urgency, which can be take `high`, or `low`
+# + type - The type of the scheduled action: `urgencyChange`
+# + at - Represents when the scheduled action will occur
+# + urgency - The urgency: `high` or `low`
 public type ScheduledAction record {|
     Type 'type;
     At at;
     Urgency urgency;
 |};
 
-# Represents a pager duty incident schedule action.
+# Represents an at of a Pager Duty.
 #
-# + type - The type of schedule action, which can take `namedTime`
-# + name - Designates either the start or the end of the scheduled action
-#          (valid option: `supportHoursStart` or `supportHoursEnd`)
+# + type - The type of the schedule action: `namedTime`
+# + name - Designates either the start or the end of the scheduled action: `supportHoursStart` or `supportHoursEnd`
 public type At record {|
     Type 'type;
     Name name;
 |};
 
-# Represents a pager duty integration.
+# Represents a Pager Duty integration.
 #
-# + type - The type of schedule action, which can take `awsCloudwatchInboundIntegration`,
+# + type - The type of the schedule action: `awsCloudwatchInboundIntegration`,
 #          `awsCloudwatchInboundIntegrationReference`, `cloudkickInboundIntegration`,
 #          `cloudkickInboundIntegrationReference`, `eventTransformerAPIInboundIntegration`,
 #          `eventTransformerApiInboundIntegrationReference`, `genericEmailInboundIntegration`,
@@ -389,17 +388,17 @@ public type At record {|
 #          `keynoteInboundIntegrationReference`, `nagiosInboundIntegration`, `nagiosInboundIntegrationReference`,
 #          `pingdomInboundIntegration`, `pingdomInboundIntegrationReference`, `sqlMonitorInboundIntegration`, or
 #          `sqlMonitorInboundIntegrationReference`
-# + id - The integration id
-# + summary - A short-form, server-generated string that provides succinct, important information about an
+# + id - The integration ID
+# + summary - A short-form, server-generated string, which provides succinct, important information about an
 #              object suitable for primary labeling of an entity in a client
-# + email - This is the unique fully-qualified email address used for routing emails to this integration for processing
+# + email - This is the unique, fully-qualified email address used for routing emails to this integration for processing
 # + key - This is the unique key used to route events to this integration when received via the PagerDuty Events API
-# + url - the API show URL at which the object is accessible
-# + htmlUrl - a URL at which the entity is uniquely displayed in the Web app
+# + url - the API URL by which the object is accessible
+# + htmlUrl - a URL by which the entity is displayed uniquely in the Web app
 # + name - The name of this integration
-# + service - The service that the integration belongs to
+# + service - The service to which the integration belongs
 # + createdAt - The date/time when this integration was created
-# + vendor - The vendor of the integration should integrate with (e.g Datadog or Amazon Cloudwatch)
+# + vendor - The vendor to integrate with (e.g., Datadog or Amazon Cloudwatch)
 public type Integration record {|
     Type 'type;
     string summary?;
@@ -415,18 +414,18 @@ public type Integration record {|
 
 |};
 
-# Represents a pager duty extension.
+# Represents a Pager Duty extension.
 #
 # + name - The name of the extension
-# + id - The extension id
-# + type - The type of object being created , which can take `extension`
-# + endpointUrl - The url of the extension
-# + services - An array of service for which the extension applies
-# + extensionSchema - This is the schema for this extension
-# + summary - A short-form, server-generated string that provides succinct, important information about an
-#              object suitable for primary labeling of an entity in a client
-# + url - The URL at which the object is accessible
-# + htmlUrl - A URL at which the entity is uniquely displayed in the Web app
+# + id - The extension ID
+# + type - The type of the object being created: `extension`
+# + endpointUrl - The URL of the extension
+# + services - An array of services to which the extension applies
+# + extensionSchema - The schema of this extension
+# + summary - A short-form, server-generated string, which provides succinct, important information about an
+#             object suitable for primary labeling of an entity in a client
+# + url - The URL by which the object is accessible
+# + htmlUrl - A URL by which the entity is displayed uniquely in the Web app
 public type Extension record {|
     string name;
     Type 'type;
@@ -439,39 +438,39 @@ public type Extension record {|
     string htmlUrl?;
 |};
 
-# Represents a pager duty incident.
+# Represents a Pager Duty incident.
 #
 # + id - The ID of the incident
-# + type - A string that determines the schema of the object, which can be take  `incident` or `incidentReference`
-# + service - The service that the incident belongs to
-# + summary -  A short-form, server-generated string that provides succinct, important information about an
+# + type - A string, which determines the schema of the object: `incident` or `incidentReference`
+# + service - The service to which the incident belongs
+# + summary -  A short-form, server-generated string, which provides succinct, important information about an
 #              object suitable for primary labeling of an entity in a client
-# + url - The URL at which the object is accessible
-# + htmlUrl - A URL at which the entity is uniquely displayed in the Web app
+# + url - The URL by which the object is accessible
+# + htmlUrl - A URL by which the entity is displayed uniquely in the Web app
 # + incidentNumber - The number of the incident
 # + createdAt - The date/time the incident was first triggered
-# + status - The current status of the incident, which can be take `triggered`,`acknowledged`, or `resolved`
+# + status - The current status of the incident: `triggered`,`acknowledged`, or `resolved`
 # + title - A succinct description of the nature, symptoms, cause, or effect of the incident
-# + pendingActions - The list of pending_actions on the incident
+# + pendingActions - The list of pending actions of the incident
 # + incidentKey - The incident's de-duplication key
-# + conferenceNumber - An URL for the conference bridge
-# + conferenceUrl - An URL for the conference bridge
+# + conferenceNumber - The number of the conference bridge
+# + conferenceUrl - The URL of the conference bridge
 # + description - The user-provided description of the service
 # + triggeredCount - The count of triggered alerts
 # + resolvedCount - The count of resolved alerts
 # + allCount - The total count of alerts
 # + impactedServices - The list of services
-# + resolution - The resolution for this incident if status is set to resolved.
-# + assignments - List of all assignments for this incident
+# + resolution - The resolution of this incident if status is set to resolved
+# + assignments - List of all the assignments of this incident
 # + assignedVia - How the current incident assignments were decided
-# + acknowledgements - List of all acknowledgements for this incident
-# + lastStatusChangeAt - The time at which the status of the incident last changed
-# + lastStatusChangeBy - The user or service which is responsible for the incident’s last status change
+# + acknowledgements - List of all the acknowledgements of this incident
+# + lastStatusChangeAt - The time at which the status of the incident was changed last
+# + lastStatusChangeBy - The user or service, which is responsible for the incident’s last status change
 # + firstTriggerLogEntry -  The first trigger log entry for this incident
-# + escalationPolicy - The escalation policy that the incident is currently following
+# + escalationPolicy - The escalation policy, which the incident is currently following
 # + teams - The teams involved in the incident’s lifecycle.
 # + priority - The priority for this incident
-# + urgency - The current urgency of the incident, which can be take `high`, or `low`
+# + urgency - The current urgency of the incident: `high` or `low`
 # + resolveReason - The reason the incident was resolved
 # + body - Additional incident details
 public type Incident record {|
@@ -509,53 +508,53 @@ public type Incident record {|
     Body body?;
 |};
 
-# Represents a pager duty pending action.
+# Represents a Pager Duty pending action.
 #
-# + type - A string that determines the schema of the object, which can be take  `unacknowledge`, `escalate`, `resolve`
-#          , or `urgencyChange`)
+# + type - A string, which determines the schema of the object: `unacknowledge`, `escalate`, `resolve`,
+#         or `urgencyChange`
 # + at - Time at which the action was created
 public type PendingAction record {|
     string 'type;
     time:Time at;
 |};
 
-# Represents a pager duty resolve reason.
+    # Represents the resolved reason of a Pager Duty incident..
 #
 # + type - The reason the incident was resolved
-# + incident -  The list of  incident
+# + incident -  The list of incidents
 public type ResolveReason record {|
     Type 'type;
     CommonRecord[] incident?;
 |};
 
-# Represents a pager duty acknowledgement.
+# Represents a Pager Duty acknowledgement.
 #
 # + at - Time at which the acknowledgement was created
-# + acknowledger -The acknowledger represents the entity that made the acknowledgement for an incident
+# + acknowledger - The acknowledger represents the entity, which made the acknowledgement for an incident
 public type Acknowledgement record {|
     time:Time at?;
     CommonRecord acknowledger?;
 |};
 
-# Represents a pager duty assignment.
+# Represents a Pager Duty assignment.
 #
 # + at - Time at which the assignment was created
-# + assignee - User that was assigned
+# + assignee - User who was assigned
 public type Assignment record {|
     time:Time at?;
     User assignee?;
 |};
 
-# Represents a pager duty body.
+# Represents a Pager Duty body.
 #
-# + type - A string that determines the schema of the object
+# + type - A string, which determines the schema of the object
 # + details - Additional incident details
 public type Body record {|
     Type 'type;
     string details?;
 |};
 
-# Represents a pager duty note.
+# Represents a Pager Duty note.
 #
 # + id -The ID of the note
 # + user -The user the note was sent to
@@ -568,19 +567,19 @@ public type Note record {|
     time:Time createdAt?;
 |};
 
-# Possible type of parameters that can be passed into the `ContactType`.
+# Possible types of parameters that can be passed into the `ContactType`.
 public type ContactType SMS|EMAIL|INPUT_PHONE|PUSH_NOTIFICATION|CONTACT_METHOD;
 
-# Possible type of parameters that can be passed into the `Label`.
+# Possible types of parameters that can be passed into the `Label`.
 public type Label INPUT_WORK|INPUT_PHONE|INPUT_HOME|INPUT_SKYPE;
 
-# Possible type of parameters that can be passed into the `Urgency`.
+# Possible types of parameters that can be passed into the `Urgency`.
 public type Urgency HIGH|LOW|SUPPRESSED|SEVERITY_BASED;
 
-# Possible type of parameters that can be passed into the `Role`.
+# Possible types of parameters that can be passed into the `Urgency`.
 public type Role ADMIN|LIMITED_USER|USER|OBSERVER|OWNER|READ_ONLY_USER|RESTRICTED_ACCESS|READ_ONLY_LIMITED_USER;
 
-# Possible type of parameters that can be passed into the `Type`.
+# Possible types of parameters that can be passed into the `Type`.
 public type Type INCIDENT|SCHEDULE|INTEGRATION|TEAM|ASSIGNMENT_NOTIFICATION_RULE|UNACKNOWLEDGE|RESOLVE|ESCALATE|
 URGENCY_CHANGE|MERGE_RESOLVE_REASON|INCIDENT_BODY|DAILY_RESTRICTION|WEEKLY_RESTRICTION|NAMED_TIME|CONTACT_METHODS|
 NOTIFICATION_RULES|ESCALATION_RULES|EXTENSION_SCHEMA|EXTENSION_OBJECTS|CONSTANT|USE_SUPPORT_HOURS|AWS_CLOUD|
@@ -592,20 +591,20 @@ EMAIL_INBOUND|EXTENSION|WEBHOOK|EXTENSION_SCHEMA_REF|EXTENSION_SCHEMA|VENDOR|VEN
 FULL_PAGE_ADDONS|SERVICE|INCIDENT_REFERENCE|USER_REFERENCE|EVENT_API_V2|PRIORITY_REFERENCE|ESCALATION_POLICY_REFERENCE|
 CONTACT_METHOD;
 
-# Possible type of parameters that can be passed into the `Include`.
+# Possible types of parameters that can be passed into the `Include`.
 public type Include CONTACT_METHODS|NOTIFICATION_RULES|TEAMS|ESCALATION_RULES|EXTENSION_SCHEMAS|EXTENSION_OBJECTS;
 
-# Possible type of parameters that can be passed into the `OnCallHandoffNotifications`.
+# Possible types of parameters that can be passed into the `OnCallHandoffNotifications`.
 public type OnCallHandoffNotifications HAS_SERVICE|ALWAYS;
 
-# Possible type of parameters that can be passed into the `Name`.
+# Possible types of parameters that can be passed into the `Name`.
 public type Name FINAL_SCHEDULE|OVERIDES|SUPPORT_HOUR_END|SUPPORT_HOURS_START;
 
-# Possible type of parameters that can be passed into the `Group`.
+# Possible types of parameters that can be passed into the `Group`.
 public type Group INTELLIGENT|TIME;
 
-# Possible type of parameters that can be passed into the `Status`.
+# Possible types of parameters that can be passed into the `Group`.
 public type Status ACTIVE|WARNING|CRITICAL|MAINTENANCE|DISABLED;
 
-# Possible type of parameters that can be passed into the `AlertCreation`.
+# Possible types of parameters that can be passed into the `Group`.
 public type AlertCreation CREATE_INCIDENTS|CREATE_ALERT_INCIDENTS;

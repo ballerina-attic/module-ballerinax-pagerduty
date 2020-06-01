@@ -131,7 +131,7 @@ function addName(json? name, At at) {
     }
 }
 
-function setTime(json? input, SupportHour output, string key) {
+function setTime(json? input, SupportHour|Restriction output, string key) {
     string value = input.toString();
     if (value != "") {
         var time = time:parse(value, "HH:mm:ss");
