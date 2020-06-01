@@ -25,11 +25,15 @@ import ballerina/time;
 # + timeZone - The preferred time zone name(e.g Asia/Colombo). If null, the account's time zone will be used
 # + color - The schedule color
 # + avatarUrl - The url of the user’s avatar
+# + url - A URL at which the object is accessible
 # + description - The user's bio
 # + role - The user role, which can take `admin`, `limitedUser`, `observer`, `owner`, `readOnlyUser`,
 #          `restrictedAccess`, `readOnlyLimitedUser`, or `user`
 # + invitationSent - If true, the user has an outstanding invitation
 # + jobTitle - The user's job title
+# + htmlUrl - A URL at which the entity is uniquely displayed in the Web app
+# + summary -  A short-form, server-generated string that provides succinct, important information about an
+#              object suitable for primary labeling of an entity in a client
 # + teams - The list of teams to which the user belongs
 # + contactMethods - The list of contact methods for this user
 # + notificationRules - The list of notification rules for this user
@@ -41,11 +45,14 @@ public type User record {|
     string id?;
     string timeZone?;
     string color?;
+    string url?;
     Role role?;
     string avatarUrl?;
     string description?;
     boolean invitationSent?;
     string jobTitle?;
+    string htmlUrl?;
+    string summary?;
     CommonRecord[] teams?;
     ContactMethod[] contactMethods?;
     NotificationRule[] notificationRules?;
@@ -80,6 +87,9 @@ public type CommonRecord record {|
 #              object suitable for primary labeling of an entity in a client
 # + url - A URL at which the object is accessible
 # + htmlUrl - A URL at which the entity is uniquely displayed in the Web app
+# + enabled - If true, this phone is capable of receiving SMS messages
+# + blacklisted - If true, this phone has been blacklisted by PagerDuty and no messages will be sent to it
+# + sendShortEmail - if true, send an abbreviated email message instead of the standard email output
 public type ContactMethod record {|
     Type 'type;
     string address;
@@ -89,6 +99,9 @@ public type ContactMethod record {|
     string summary?;
     string url?;
     string htmlUrl?;
+    string enabled?;
+    string blacklisted?;
+    boolean sendShortEmail?;
 |};
 
 # Represents a pager duty notification rule.
@@ -127,7 +140,7 @@ public type NotificationRule record {|
 # + numberOfloops - The number of times the escalation policy will repeat after reaching the end of its escalation
 # + services - The list of services
 # + teams - Teams associated with the policy. Account must have the teams ability to use this parameter
-# + onCallHandoffNotification - Determines how on call handoff notifications will be sent for users
+# + onCallHandoffNotifications - Determines how on call handoff notifications will be sent for users
 #                               on the escalation policy, which can take  `ifHasServices`, or `always`).
 #                               Defaults value is  `ifHasServices`
 public type EscalationPolicy record {|
@@ -140,7 +153,7 @@ public type EscalationPolicy record {|
       string description?;
       string htmlUrl?;
       int numberOfloops?;
-      OnCallHandoffNotifications onCallHandoffNotification?;
+      OnCallHandoffNotifications onCallHandoffNotifications?;
       Service[] services?;
       CommonRecord[] teams?;
 |};
@@ -263,7 +276,12 @@ public type RenderedScheduleEntry record {|
 # + autoResolveTimeout - Time in seconds that an incident is automatically resolved if left open for that long
 # + acknowledgementTimeout - Time in seconds that an incident changes to the Triggered State after being Acknowledged.
 # + createdAt - The date/time when this service was created
+# + updatedAt - The date/time when this service was updated
 # + status - The current state of the service
+# + summary -  A short-form, server-generated string that provides succinct, important information about an
+#              object suitable for primary labeling of an entity in a client
+# + url - A URL at which the object is accessible
+# + htmlUrl - A URL at which the entity is uniquely displayed in the Web app
 # + lastIncidentTimestamp - The date/time when the most recent incident was created for this service
 # + teams - The set of teams associated with this service
 # + integrations - An array containing Integration objects that belong to this service.
@@ -285,7 +303,11 @@ public type Service record {|
     int autoResolveTimeout? ;
     int acknowledgementTimeout?;
     time:Time createdAt?;
+    time:Time updatedAt?;
     Status status?;
+    string summary?;
+    string url?;
+    string htmlUrl?;
     time:Time lastIncidentTimestamp?;
     CommonRecord[] teams?;
     Integration[] integrations?;
@@ -324,13 +346,13 @@ public type IncidentSupportHour record {|
 #
 # + type - The type of support hours, which can take `fixedTimePerDay`
 # + timeZone - The time zone for the support hours(e.g Asia/Colombo)
-# + dayOfWeek - Array of days of week as integers. (Valid options: 1 to 7, 1 being Monday and 7 being Sunday)
-# + startTime - The support hours' starting time of day
-# + endTime - The support hours' ending time of day
+# + daysOfWeek - Array of days of week as integers. (Valid options: 1 to 7, 1 being Monday and 7 being Sunday)
+# + startTime - The support hours' starting time of day. (Valid format: "HH:mm:00")
+# + endTime - The support hours' ending time of day. (Valid format: "HH:mm:00")
 public type SupportHour record {|
     string 'type?;
     string timeZone?;
-    int[] dayOfWeek?;
+    int[] daysOfWeek?;
     time:Time startTime?;
     time:Time endTime?;
 |};
@@ -401,7 +423,7 @@ public type Integration record {|
 # + endpointUrl - The url of the extension
 # + services - An array of service for which the extension applies
 # + extensionSchema - This is the schema for this extension
-# + summary -  A short-form, server-generated string that provides succinct, important information about an
+# + summary - A short-form, server-generated string that provides succinct, important information about an
 #              object suitable for primary labeling of an entity in a client
 # + url - The URL at which the object is accessible
 # + htmlUrl - A URL at which the entity is uniquely displayed in the Web app
@@ -421,6 +443,7 @@ public type Extension record {|
 #
 # + id - The ID of the incident
 # + type - A string that determines the schema of the object, which can be take  `incident` or `incidentReference`
+# + service - The service that the incident belongs to
 # + summary -  A short-form, server-generated string that provides succinct, important information about an
 #              object suitable for primary labeling of an entity in a client
 # + url - The URL at which the object is accessible
@@ -431,12 +454,13 @@ public type Extension record {|
 # + title - A succinct description of the nature, symptoms, cause, or effect of the incident
 # + pendingActions - The list of pending_actions on the incident
 # + incidentKey - The incident's de-duplication key
-# + service - The service that the incident belongs to
 # + conferenceNumber - An URL for the conference bridge
 # + conferenceUrl - An URL for the conference bridge
+# + description - The user-provided description of the service
 # + triggeredCount - The count of triggered alerts
 # + resolvedCount - The count of resolved alerts
 # + allCount - The total count of alerts
+# + impactedServices - The list of services
 # + resolution - The resolution for this incident if status is set to resolved.
 # + assignments - List of all assignments for this incident
 # + assignedVia - How the current incident assignments were decided
@@ -465,9 +489,11 @@ public type Incident record {|
     string assignedVia?;
     string conferenceNumber?;
     string conferenceUrl?;
+    string description?;
     int triggeredCount?;
     int resolvedCount?;
     int allCount?;
+    CommonRecord[] impactedServices?;
     string resolution?;
     Assignment[] assignments?;
     time:Time lastStatusChangeAt?;
@@ -543,7 +569,7 @@ public type Note record {|
 |};
 
 # Possible type of parameters that can be passed into the `ContactType`.
-public type ContactType SMS|EMAIL|INPUT_PHONE|PUSH_NOTIFICATION;
+public type ContactType SMS|EMAIL|INPUT_PHONE|PUSH_NOTIFICATION|CONTACT_METHOD;
 
 # Possible type of parameters that can be passed into the `Label`.
 public type Label INPUT_WORK|INPUT_PHONE|INPUT_HOME|INPUT_SKYPE;
@@ -563,17 +589,17 @@ KEY_NOTE_REFERENCE|NAGIOS_REFERENCE|PINGDOM_INTEGRATION|PINGDOM_REFERENCE|SQL_MO
 INCIDENT_REFERENCE|TEAM_REFERENCE|SMS|EMAIL|INPUT_PHONE|PUSH_NOTIFICATION|RESOLVE|ESCALATE|ESCALATION_POLICY|
 SERVICE_REFERENCE|SERVICES|FIXED_TIME_PER_DAY|USER|EMAIL_REFERENCE|EVENTS_API_REFERENCE|NAGIOS_INTEGRATION|EVENTS_API|
 EMAIL_INBOUND|EXTENSION|WEBHOOK|EXTENSION_SCHEMA_REF|EXTENSION_SCHEMA|VENDOR|VENDOR_REFERENCE|INCIDENT_ADDONS|
-FULL_PAGE_ADDONS|SERVICE|INCIDENT_REFERENCE|USER_REFERENCE|EVENT_API_V2|PRIORITY_REFERENCE;
+FULL_PAGE_ADDONS|SERVICE|INCIDENT_REFERENCE|USER_REFERENCE|EVENT_API_V2|PRIORITY_REFERENCE|ESCALATION_POLICY_REFERENCE|
+CONTACT_METHOD;
 
 # Possible type of parameters that can be passed into the `Include`.
-public type Include CONTACT_METHODS|NOTIFICATION_RULES|TEAMS|ESCALATION_RULES|EXTENSION_SCHEMAS|
-EXTENSION_OBJECTS;
+public type Include CONTACT_METHODS|NOTIFICATION_RULES|TEAMS|ESCALATION_RULES|EXTENSION_SCHEMAS|EXTENSION_OBJECTS;
 
 # Possible type of parameters that can be passed into the `OnCallHandoffNotifications`.
 public type OnCallHandoffNotifications HAS_SERVICE|ALWAYS;
 
 # Possible type of parameters that can be passed into the `Name`.
-public type Name FINAL_SCHEDULE|OVERIDE|SUPPORT_HOUR_END|SUPPORT_HOURS_START;
+public type Name FINAL_SCHEDULE|OVERIDES|SUPPORT_HOUR_END|SUPPORT_HOURS_START;
 
 # Possible type of parameters that can be passed into the `Group`.
 public type Group INTELLIGENT|TIME;

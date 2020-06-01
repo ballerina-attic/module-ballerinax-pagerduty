@@ -32,6 +32,8 @@ function escalationPolicyToPayload(EscalationPolicy|json input) returns @tainted
     string value = escalationPolicy[TYPE].toString();
     if (value == ESCALATION_POLICY) {
         payload[TYPE] = ESCALATION_POLICY_VAR;
+    } else if (value == ESCALATION_POLICY_REFERENCE) {
+        payload[TYPE] = ESCALATION_POLICY_REFERENCE_VAR;
     }
     value = escalationPolicy[ON_CALL_HAND_OF_NOTIFICATION].toString();
     if (value != "") {
@@ -95,6 +97,8 @@ function convertToEscalationPolicy(map<json> response) returns @tainted Escalati
     string value = response[TYPE].toString();
     if (value == ESCALATION_POLICY_VAR) {
        escalationPolicy.'type = ESCALATION_POLICY;
+    } else if (value == ESCALATION_POLICY_REFERENCE_VAR) {
+       escalationPolicy.'type = ESCALATION_POLICY_REFERENCE;
     }
     addString(response[ID], escalationPolicy, ID);
     addString(response[SELF], escalationPolicy, URL);
@@ -105,9 +109,9 @@ function convertToEscalationPolicy(map<json> response) returns @tainted Escalati
     value = response[ON_CALL_HAND_OF_NOTIFICATION_VAR].toString();
     if (value != "") {
         if (value == IF_HAS_SERVICE) {
-            escalationPolicy.onCallHandoffNotification = HAS_SERVICE;
+            escalationPolicy.onCallHandoffNotifications = HAS_SERVICE;
         } else {
-            escalationPolicy.onCallHandoffNotification = ALWAYS;
+            escalationPolicy.onCallHandoffNotifications = ALWAYS;
         }
     }
     int i = 0;
@@ -117,13 +121,13 @@ function convertToEscalationPolicy(map<json> response) returns @tainted Escalati
         escalationPolicy.escalationRules = [];
         EscalationRule[] rules = [];
         int length = escalationRuleList.length();
-        while (i < length) {
-            EscalationRule escalationRule = {escalationDelayInMinutes: 0,targets: []};
-            convertToEscalationRule(response, escalationRule);
-            rules[i] = escalationRule;
-            i = i + 1;
-        }
-        if (rules.length() > 0) {
+        if (length > 0) {
+            while (i < length) {
+                EscalationRule escalationRule = {escalationDelayInMinutes: 0, targets: []};
+                convertToEscalationRule(<map<json>>escalationRuleList[i], escalationRule);
+                rules[i] = escalationRule;
+                i = i + 1;
+            }
             escalationPolicy.escalationRules = rules;
         }
     }
@@ -141,7 +145,7 @@ function convertToEscalationPolicy(map<json> response) returns @tainted Escalati
 function convertToEscalationRule(map<json> input, EscalationRule escalationRule) {
     addInt(input[ESCALATION_DELAY_IN_MINUTES_VAR], escalationRule, ESCALATION_DELAY_IN_MINUTES);
     addString(input[ID], escalationRule, ID);
-    CommonRecord[]? records = convertToCommons(input, TEAMS);
+    CommonRecord[]? records = convertToCommons(input, TARGETS);
     if (records is CommonRecord[]) {
         escalationRule.targets = records;
     }

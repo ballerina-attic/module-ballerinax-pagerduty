@@ -449,6 +449,6 @@ function setJsonPayload(map<json>|error|json[] data, http:Request request, strin
 
 function getError() returns error {
     return error(PAGERDUTY_ERROR, message = "Error occurred while getting the logged-in user email ID: " +
-                 "an account-level access token, we were unable to determine the user's identity. " +
+                 "An account-level access token, we were unable to determine the user's identity. " +
                  "Please use a user-level token.");
 }

@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/time;
-
 function incidentToPayload(Incident|json input) returns @tainted map<json> {
     map<json>|Incident incident = {};
     if (input is json && input != ()) {
@@ -40,6 +38,7 @@ function incidentToPayload(Incident|json input) returns @tainted map<json> {
     addIntToPayload(incident[INCIDENT_NUMBER], payload, INCIDENT_NUMBER_VAR);
     addStringToPayload(incident[HTML_URL], payload, HTML_URL_VAR);
     addStringToPayload(incident[RESOLUTION], payload, RESOLUTION);
+    addStringToPayload(incident[DESCRIPTION], payload, DESCRIPTION);
     var policy = incident[ESCALATION_POLICY];
     if (policy is EscalationPolicy) {
         payload[ESCALATION_POLICY_VAR] = escalationPolicyToPayload(policy);
@@ -51,7 +50,7 @@ function incidentToPayload(Incident|json input) returns @tainted map<json> {
         payload[CONFERENCE_BRIDGE_VAR] = conferenceBridge;
     }
     addStringTime(incident[CREATED_AT], payload, CREATED_AT_VAR);
-    addStringTime(incident[LAST_CHANGES], payload, LAST_CHANGES);
+    addStringTime(incident[LAST_CHANGES], payload, LAST_CHANGES_VAR);
     map<json> alertCount = {};
     addIntToPayload(incident[TRIGERED_COUNT], alertCount, TRIGERED);
     addIntToPayload(incident[RESOLVED_COUNT], alertCount, RESOLVED);
@@ -75,10 +74,10 @@ function incidentToPayload(Incident|json input) returns @tainted map<json> {
             assignmentsToPayload(assignmentValue, payload, ASSIGNMENTS);
         }
     }
-
     payload[LAST_STATUS_CHANGE_BY_VAR] = commonToPayload(incident[LAST_STATUS_CHANGE_BY]);
     payload[FIRST_TRIGGER_LOG_ENTRY_VAR] = commonToPayload(incident[FIRST_TRIGGER_LOG_ENTRY]);
     commonsOrJsonToPayload(incident[TEAMS], payload, TEAMS);
+    commonsOrJsonToPayload(incident[IMPACTED_SERVICES], payload, IMPACTED_SERVICES_VAR);
     var acknowledgements = incident[ACKNOWLEDGEMENTS];
     if (acknowledgements is Acknowledgement[] && acknowledgements != []) {
         acknowledgementsToPayload(acknowledgements, payload, ACKNOWLEDGEMENTS);
@@ -90,7 +89,12 @@ function incidentToPayload(Incident|json input) returns @tainted map<json> {
     }
     var body = incident[BODY];
     if (body is Body) {
-       payload[BODY] = <map<json>>body;
+        map<json> result = {};
+        if (body[TYPE] == INCIDENT_BODY) {
+            result[TYPE] =  INCIDENT_BODY_VAR;
+        }
+        result[DETAILS] = body[DETAILS];
+        payload[BODY] = result;
     }
     addUrgencyToPayload(incident[URGENCY], payload, URGENCY);
     return payload;
@@ -184,6 +188,7 @@ function convertToIncident(map<json> input) returns @tainted Incident {
     addString(input[STATUS], incident, STATUS);
     addString(input[ASSIGNED_VIA_VAR], incident, ASSIGNED_VIA);
     addString(input[RESOLUTION], incident, RESOLUTION);
+    addString(input[DESCRIPTION], incident, DESCRIPTION);
     var policy = input[ESCALATION_POLICY_VAR];
     if (policy.toString() != "") {
         incident[ESCALATION_POLICY] = convertToEscalationPolicy(<map<json>>policy);
@@ -197,7 +202,7 @@ function convertToIncident(map<json> input) returns @tainted Incident {
     map<json> alertCount = <map<json>>input[ALERT_COUNTS];
     addInt(alertCount[TRIGERED], incident, TRIGERED_COUNT);
     addInt(alertCount[RESOLVED], incident, RESOLVED_COUNT);
-    addInt(alertCount[TRIGERED], incident, TRIGERED_COUNT);
+    addInt(alertCount[ALL], incident, ALL_COUNT);
     setTimeFromString(input[CREATED_AT_VAR], incident, CREATED_AT);
     setTimeFromString(input[LAST_CHANGES_VAR], incident, LAST_CHANGES);
     json serv = input[SERVICE];
@@ -220,15 +225,19 @@ function convertToIncident(map<json> input) returns @tainted Incident {
     if (records is CommonRecord[]) {
         incident[TEAMS] = records;
     }
+    CommonRecord[]? services = convertToCommons(input, IMPACTED_SERVICES_VAR);
+    if (services is CommonRecord[]) {
+        incident[IMPACTED_SERVICES] = services;
+    }
     if (input[ACKNOWLEDGEMENTS].toString() != "") {
         incident[ACKNOWLEDGEMENTS] = convertToAcknowledgements(input);
     }
     json body = input[BODY];
-    if (body.toString() != "") {
-        var output = Body.constructFrom(body);
-        if (output is Body) {
-            incident[BODY] = output;
-        }
+    if (body != ()) {
+        Body result = {'type: INCIDENT_BODY};
+        map<json> res = <map<json>>body;
+        result[DETAILS] = res[DETAILS].toString();
+        incident[BODY] = result;
     }
     addUrgency(input[URGENCY], incident);
     return incident;
@@ -240,11 +249,11 @@ function convertToAssignments(map<json> input) returns @tainted Assignment[] {
     json[] targetList = <json[]>input[ASSIGNMENTS];
     while (i < targetList.length()) {
         map<json> value = <map<json>>targetList[i];
-        assignments[i][ASSIGNEE] = convertToUser(value[ASSIGNEE]);
-        var time = time:parse(value[AT].toString(), "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        if (time is time:Time) {
-            assignments[i][AT] = time;
+        User? user = convertToUser(value[ASSIGNEE]);
+        if (user is User) {
+            assignments[i][ASSIGNEE] = user;
         }
+        setTimeFromString(value[AT], assignments[i], AT);
         i = i + 1;
     }
     return assignments;
@@ -257,10 +266,7 @@ function convertToAcknowledgements(map<json> input) returns Acknowledgement[] {
     while (i < targetList.length()) {
         map<json> value = <map<json>>targetList[i];
         acknowledgements[i][ACKNOWLEDGER] = convertToCommon(value[ACKNOWLEDGER]);
-        var time = time:parse(value[AT].toString(), "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        if (time is time:Time) {
-            acknowledgements[i][AT] = time;
-        }
+        setTimeFromString(value[AT], acknowledgements[i], AT);
         i = i + 1;
     }
     return acknowledgements;
@@ -279,10 +285,7 @@ function convertToPendiingActions(map<json> payload, string key) returns Pending
         } else {
             pendiingActions[i][TYPE] = <Type>value;
         }
-        var time = time:parse(result[AT].toString(), "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        if (time is time:Time) {
-            pendiingActions[i][AT] = time;
-        }
+        setTimeFromString(result[AT], pendiingActions[i], AT);
         i = i + 1;
     }
     return pendiingActions;

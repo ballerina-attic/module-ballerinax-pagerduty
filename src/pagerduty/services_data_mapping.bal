@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/time;
+
 function serviceToPayload(Service|json input) returns @tainted map<json> {
     map<json>|Service serv = {};
     if (input is json && input != ()) {
@@ -35,7 +37,11 @@ function serviceToPayload(Service|json input) returns @tainted map<json> {
     addIntToPayload(serv[AUTO_RESOLVE_TIMEOUT], payload, AUTO_RESOLVE_TIME_OUT_VAR);
     addIntToPayload(serv[ACKNOWLEDGEMENT_TIMEOUT], payload, ACKNOWLEDGEMENT_TIMEOUT_VAR);
     addStringTime(serv[CREATED_AT], payload, CREATED_AT_VAR);
+    addStringTime(serv[UPDATED_AT], payload, UPDATED_AT_VAR);
     addStringTime(serv[TIME_STAMP], payload, TIME_STAMP_VAR);
+    addStringToPayload(serv[SUMMARY], payload, SUMMARY);
+    addStringToPayload(serv[HTML_URL], payload, HTML_URL_VAR);
+    addStringToPayload(serv[URL], payload, SELF);
     var policy = serv[ESCALATION_POLICY];
     payload[ESCALATION_POLICY_VAR] = escalationPolicyToPayload(serv[ESCALATION_POLICY]);
     var teams = serv[TEAMS];
@@ -46,12 +52,24 @@ function serviceToPayload(Service|json input) returns @tainted map<json> {
     if (integrations is Integration[]) {
        integrationsToPayload(integrations, payload, INTEGRATIONS);
     }
-    map<json>? rule= incidentUrgencyRuleToPayload(serv[INCIDENT_URGENCY_RULE]);
-    if (rule is map<json>) {
+    var urgencyRules = serv[INCIDENT_URGENCY_RULE];
+    map<json>? rule = {};
+    if (urgencyRules is IncidentUrgencyRule) {
+       rule = incidentUrgencyRuleToPayload(urgencyRules);
+    } else if (urgencyRules != ()) {
+        rule = incidentUrgencyRuleToPayload(<map<json>>urgencyRules);
+    }
+    if (rule is map<json> && rule != {}) {
         payload[INCIDENT_URGENCY_RULE_VAR] = rule;
     }
-    map<json>? hours= supportHoursToPayload(serv[SUPPORT_HOURS]);
-    if (rule is map<json>) {
+    var supportHours = serv[SUPPORT_HOURS];
+    map<json>? hours = {};
+    if (supportHours is SupportHour) {
+       hours = supportHoursToPayload(supportHours);
+    } else if (supportHours != ()) {
+        hours = supportHoursToPayload(<map<json>>supportHours);
+    }
+    if (hours is map<json> && hours != {}) {
         payload[SUPPORT_HOURS_VAR] = hours;
     }
     int i = 0;
@@ -76,9 +94,9 @@ function serviceToPayload(Service|json input) returns @tainted map<json> {
     string alertCreation = serv[ALERT_CREATION].toString();
     if (alertCreation != "") {
         if (value == CREATE_INCIDENTS) {
-            payload[ALERT_CREATION] = CREATE_INCIDENTS_VAR;
+            payload[ALERT_CREATION_VAR] = CREATE_INCIDENTS_VAR;
         } else {
-            payload[ALERT_CREATION] = CREATE_ALERT_INCIDENTS;
+            payload[ALERT_CREATION_VAR] = CREATE_ALERT_INCIDENTS_VAR;
         }
     }
     var group = serv[ALERT_GROUPING];
@@ -145,6 +163,7 @@ function integrationToPayload(Integration integration) returns @tainted map<json
     addStringToPayload(integration[HTML_URL], payload, HTML_URL_VAR);
     addStringToPayload(integration[EMAIL], payload, INTEGRATION_EMAIL);
     addStringToPayload(integration[KEY], payload, INTEGRATION_KEY);
+    addStringToPayload(integration[NAME], payload, NAME);
     var serv = integration[SERVICE];
     if (serv is Service) {
        payload[SERVICE] = serviceToPayload(serv);
@@ -157,57 +176,73 @@ function integrationToPayload(Integration integration) returns @tainted map<json
     return payload;
 }
 
-function incidentUrgencyRuleToPayload(IncidentUrgencyRule|json input) returns map<json>? {
-    if (input != ()) {
-        map<json>|error rule = map<json>.constructFrom(input);
-        if (rule is map<json>) {
-            map<json> payload = {};
-            string value = rule[TYPE].toString();
-            if (value == CONSTANT) {
-                payload[TYPE] = CONSTANT;
-            } else if (value == USE_SUPPORT_HOURS) {
-                payload[TYPE] = USE_SUPPORT_HOURS_VAR;
-            }
-            addUrgencyToPayload(rule[URGENCY], payload, URGENCY);
-            var hours = rule[DURING_SUPPORT_HOURS];
-            if (hours != "") {
-                payload[DURING_SUPPORT_HOURS_VAR] = IncidentSupportHoursToPayload(hours);
-            }
-            var result = rule[OUTSIDE_SUPPORT_HOURS];
-            if (result != "") {
-                payload[OUTSIDE_SUPPORT_HOURS_VAR] = IncidentSupportHoursToPayload(result);
-            }
-            return payload;
+function incidentUrgencyRuleToPayload(IncidentUrgencyRule|map<json> rule) returns map<json>? {
+    map<json> payload = {};
+    string value = rule[TYPE].toString();
+    if (value == CONSTANT) {
+        payload[TYPE] = CONSTANT;
+    } else if (value == USE_SUPPORT_HOURS) {
+        payload[TYPE] = USE_SUPPORT_HOURS_VAR;
+    }
+    addUrgencyToPayload(rule[URGENCY], payload, URGENCY);
+    var hours = rule[DURING_SUPPORT_HOURS];
+    if (hours != ()) {
+        var result = IncidentSupportHoursToPayload(<map<json>>hours);
+        if (result is map<json>) {
+            payload[DURING_SUPPORT_HOURS_VAR] = result;
         }
     }
-}
-
-function IncidentSupportHoursToPayload(json input) returns map<json>? {
-    if (input != ()) {
-        map<json> payload = {};
-        map<json> supportHours = <map<json>> input;
-        string value = supportHours[TYPE].toString();
-        if (value == CONSTANT) {
-            payload[TYPE] = CONSTANT;
-        } else if (value == USE_SUPPORT_HOURS) {
-            payload[TYPE] = USE_SUPPORT_HOURS_VAR;
+    var result = rule[OUTSIDE_SUPPORT_HOURS];
+    if (result != ()) {
+        var supportHours = IncidentSupportHoursToPayload(<map<json>>result);
+        if (supportHours is map<json>) {
+            payload[OUTSIDE_SUPPORT_HOURS_VAR] = supportHours;
         }
-        addUrgencyToPayload(supportHours[URGENCY], payload, URGENCY);
+    }
+    if (payload != {}) {
         return payload;
     }
 }
 
-function supportHoursToPayload(SupportHour|json input) returns map<json>? {
-    if (input != ()) {
-        map<json> hours = <map<json>>input;
-        map<json> payload = {};
-        string value = hours[TYPE].toString();
-        if (value == FIXED_TIME_PER_DAY) {
-            payload[TYPE] = FIXED_TIME_PER_DAY_VAR;
+function IncidentSupportHoursToPayload(map<json> supportHours) returns map<json>? {
+    map<json> payload = {};
+    string value = supportHours[TYPE].toString();
+    if (value == CONSTANT) {
+        payload[TYPE] = CONSTANT;
+    } else if (value == USE_SUPPORT_HOURS) {
+        payload[TYPE] = USE_SUPPORT_HOURS_VAR;
+    }
+    addUrgencyToPayload(supportHours[URGENCY], payload, URGENCY);
+    if (payload != {}) {
+        return payload;
+    }
+}
+
+function supportHoursToPayload(SupportHour|map<json> hours) returns map<json>? {
+    map<json> payload = {};
+    string value = hours[TYPE].toString();
+    if (value == FIXED_TIME_PER_DAY) {
+        payload[TYPE] = FIXED_TIME_PER_DAY_VAR;
+    }
+    addStringToPayload(hours[TIME_ZONE], payload, TIME_ZONE_VAR);
+    if (hours is SupportHour) {
+        time:Time? time = hours[START_TIME];
+        if (time is time:Time) {
+            payload[START_TIME_VAR] = addTime(time);
         }
-        addStringToPayload(hours[TIME_ZONE], payload, TIME_ZONE_VAR);
-        addStringTime(hours[START_TIME], payload, START_TIME_VAR);
-        addStringTime(hours[END_TIME], payload, END_TIME_VAR);
+        time = hours[END_TIME];
+        if (time is time:Time) {
+            payload[END_TIME_VAR] = addTime(time);
+        }
+    } else {
+        payload[END_TIME_VAR] = hours[END_TIME].toString();
+        payload[START_TIME_VAR] = hours[START_TIME].toString();
+    }
+    var days = hours[DAYS_OF_WEEK];
+    if (days.toString() != "") {
+        payload[DAYS_OF_WEEK_VAR] = hours[DAYS_OF_WEEK];
+    }
+    if (payload != {}) {
         return payload;
     }
 }
@@ -218,17 +253,19 @@ function scheduledActionToPayload(ScheduledAction scheduledAction) returns map<j
     if (value == URGENCY_CHANGE) {
         payload[TYPE] = URGENCY_CHANGE_VAR;
     }
-    atToPayload(scheduledAction[AT], payload);
+    payload[AT] = atToPayload(scheduledAction[AT]);
     addUrgencyToPayload(scheduledAction[URGENCY], payload, TO_URGENCY);
     return payload;
 }
 
-function atToPayload(At input, map<json> payload) {
+function atToPayload(At input) returns map<json> {
     string value = input[TYPE].toString();
+    map<json> at = {};
     if (value == NAMED_TIME) {
-        payload[TYPE] = NAMED_TIME_VAR;
+        at[TYPE] = NAMED_TIME_VAR;
     }
-    addNameToPayload(input[NAME], payload);
+    addNameToPayload(input[NAME], at);
+    return at;
 }
 
 function convertToService(map<json> input) returns Service {
@@ -246,6 +283,10 @@ function convertToService(map<json> input) returns Service {
     addInt(input[AUTO_RESOLVE_TIME_OUT_VAR], serv, AUTO_RESOLVE_TIMEOUT);
     addInt(input[ACKNOWLEDGEMENT_TIMEOUT_VAR], serv, ACKNOWLEDGEMENT_TIMEOUT);
     setTimeFromString(input[CREATED_AT_VAR], serv, CREATED_AT);
+    setTimeFromString(input[UPDATED_AT_VAR], serv, UPDATED_AT);
+    addString(input[SUMMARY], serv, SUMMARY);
+    addString(input[SELF], serv, URL);
+    addString(input[HTML_URL_VAR], serv, HTML_URL);
     setTimeFromString(input[TIME_STAMP_VAR], serv, TIME_STAMP);
     if (input[ESCALATION_POLICY_VAR].toString() != "") {
         serv[ESCALATION_POLICY] = convertToEscalationPolicy(<map<json>>input[ESCALATION_POLICY_VAR]);
@@ -266,8 +307,9 @@ function convertToService(map<json> input) returns Service {
     if (supportHour.toString() != "") {
         serv[SUPPORT_HOURS] = convertToSupportHour(<map<json>>supportHour);
     }
-    if (input[SCHEDULED_ACTIONS_VAR].toString() != "") {
-        serv[SCHEDULED_ACTIONS] = convertToScheduledActions(input);
+    ScheduledAction[] result= convertToScheduledActions(input);
+    if (result.length() > 0) {
+        serv[SCHEDULED_ACTIONS] = result;
     }
     CommonRecord[]? records = convertToCommons(input, ADDONS);
     if (records is CommonRecord[]) {
@@ -281,8 +323,9 @@ function convertToService(map<json> input) returns Service {
             serv[ALERT_CREATION] = CREATE_ALERT_INCIDENTS;
         }
     }
-    if (input[ALERT_GROUPING_VAR].toString() != "") {
-        serv[ALERT_GROUPING] = <Group>value;
+    string group = input[ALERT_GROUPING_VAR].toString();
+    if (group != "") {
+        serv[ALERT_GROUPING] = <Group>group;
     }
     addInt(input[ALERT_GROUPING_TIME_VAR], serv, ALERT_GROUPING_TIME);
     return <@untainted> serv;
@@ -343,6 +386,7 @@ function convertToIntegration(map<json> input) returns Integration {
         integration[TYPE] = EVENT_API_V2;
     }
     addString(input[ID], integration, ID);
+    addString(input[NAME], integration, NAME);
     addString(input[INTEGRATION_EMAIL], integration, EMAIL);
     addString(input[INTEGRATION_KEY], integration, KEY);
     addString(input[SUMMARY], integration, SUMMARY);
@@ -350,7 +394,7 @@ function convertToIntegration(map<json> input) returns Integration {
     addString(input[HTML_URL_VAR], integration, HTML_URL);
     var serv = input[SERVICE];
     if (input[SERVICE].toString() != "") {
-        integration[SERVICE] =  convertToService(input);
+        integration[SERVICE] =  convertToService(<map<json>>serv);
     }
     setTimeFromString(input[CREATED_AT_VAR], integration, CREATED_AT);
     var vendor = input[VENDOR];
@@ -373,7 +417,7 @@ function convertToIncidentUrgencyRule(map<json> input) returns IncidentUrgencyRu
     if (input[DURING_SUPPORT_HOURS_VAR].toString() != "") {
         rule[DURING_SUPPORT_HOURS] = convertToIncidentSupportHour(<map<json>>supportHours);
     }
-    if (input[DURING_SUPPORT_HOURS].toString() != "") {
+    if (input[OUTSIDE_SUPPORT_HOURS_VAR].toString() != "") {
         rule[OUTSIDE_SUPPORT_HOURS] = convertToIncidentSupportHour(<map<json>>input[OUTSIDE_SUPPORT_HOURS_VAR]);
     }
     return rule;
@@ -398,36 +442,37 @@ function convertToSupportHour(map<json> input) returns SupportHour {
         hours[TYPE] = FIXED_TIME_PER_DAY;
     }
     addString(input[TIME_ZONE_VAR], hours, TIME_ZONE);
-    var daysOfWeek = input[DAY_OF_WEEK];
-    if (daysOfWeek != null) {
-        addDaysOfWeek(daysOfWeek, hours);
-    }
-    setTimeFromString(input[START_TIME_VAR], hours, START_TIME);
-    setTimeFromString(input[END_TIME_VAR], hours, END_TIME);
+    var daysOfWeek = input[DAYS_OF_WEEK_VAR];
+    addDaysOfWeek(daysOfWeek, hours);
+    setTime(input[START_TIME_VAR], hours, START_TIME);
+    setTime(input[END_TIME_VAR], hours, END_TIME);
     return hours;
 }
 
 function addDaysOfWeek(json input, SupportHour hours)  {
+    int[] output = [];
     var days = json[].constructFrom(input);
     if (days is json[]) {
-        int[] output = [];
         int i = 0;
         int length = days.length();
         while (i < length) {
             output[i] = <int>days[i];
             i = i + 1;
         }
-        hours[DAY_OF_WEEK] = output;
+        hours[DAYS_OF_WEEK] = output;
     }
 }
 
 function convertToScheduledActions(map<json> input) returns ScheduledAction[] {
     int i = 0;
     ScheduledAction[] scheduledActions = [];
-    json[] targetList = <json[]>input[SCHEDULED_ACTIONS];
-    while (i < targetList.length()) {
-        scheduledActions[i] = convertToScheduledAction(<map<json>>targetList[i]);
-        i = i + 1;
+    json actions = input[SCHEDULED_ACTIONS_VAR];
+    if (actions != ()) {
+        json[] targetList = <json[]>actions;
+        while (i < targetList.length()) {
+            scheduledActions[i] = convertToScheduledAction(<map<json>>targetList[i]);
+            i = i + 1;
+        }
     }
     return scheduledActions;
 }
@@ -467,7 +512,9 @@ function convertToServices(map<json> payload, string key) returns Service[]? {
             services[i] = convertToService(<map<json>>serviceList[i]);
             i = i + 1;
         }
-        return <@untainted> services;
+        if (services.length() > 0) {
+            return services;
+        }
     }
 }
 

@@ -35,16 +35,27 @@ function addString(json? input, Schedule|ScheduleLayer|Schedule|User|SupportHour
 function addStringTime(time:Time?|json? value, map<json> payload, string key) {
     if (value is time:Time) {
        payload[key] = time:toString(value);
-    } else {
+    } else if (value != ()){
        payload[key] = value;
     }
 }
 
+function addTime(time:Time time) returns string {
+    int mins = time:getMinute(time);
+    int secs = time:getSecond(time);
+    int hour = time:getHour(time);
+    string hoursInString = hour < 10 ? "0"+ hour.toString() : hour.toString();
+    string minsInString = mins < 10 ? "0"+ mins.toString() :  mins.toString();
+    string secsInString = secs < 10 ? "0"+ secs.toString() :  secs.toString();
+    return hoursInString + ":" + minsInString + ":" + minsInString;
+}
+
 function setTimeFromString(json? input, Schedule|RenderedScheduleEntry|ScheduleLayer|Restriction|Service|
-                           SupportHour|Integration|Note|Incident output, string key) {
+                           SupportHour|Integration|Note|Incident|Assignment|Acknowledgement|PendingAction output,
+                           string key) {
     string value = input.toString();
     if (value != "") {
-        var time = time:parse(value.toString(), "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        var time = time:parse(value, "yyyy-MM-dd'T'HH:mm:ssz");
         if (time is time:Time) {
             output[key] = time;
         }
@@ -115,7 +126,17 @@ function addName(json? name, At at) {
         } else if (name == SUPPORT_HOURS_END_VAR) {
             at[NAME] = SUPPORT_HOUR_END;
         } else {
-            at[NAME] = OVERIDE;
+            at[NAME] = OVERIDES;
+        }
+    }
+}
+
+function setTime(json? input, SupportHour output, string key) {
+    string value = input.toString();
+    if (value != "") {
+        var time = time:parse(value, "HH:mm:ss");
+        if (time is time:Time) {
+            output[key] = time;
         }
     }
 }

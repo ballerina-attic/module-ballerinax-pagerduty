@@ -27,9 +27,12 @@ function userToPayload(User|json input) returns @tainted map<json> {
     addStringToPayload(user[EMAIL], payload, EMAIL);
     addStringToPayload(user[ID], payload, ID);
     addStringToPayload(user[AVATAR_URL], payload, AVATAR_URL_VAR);
+    addStringToPayload(user[HTML_URL], payload, HTML_URL_VAR);
+    addStringToPayload(user[URL], payload, SELF);
     addStringToPayload(user[COLOR], payload, COLOR);
     addStringToPayload(user[DESCRIPTION], payload, DESCRIPTION);
     addStringToPayload(user[JOB_TITLE], payload, JOB_TITLE_VAR);
+    addStringToPayload(user[SUMMARY], payload, SUMMARY);
     var methods  = user[CONTACT_METHODS];
     if (methods is ContactMethod[]) {
         addContactMethodsToPayload(methods, payload);
@@ -101,17 +104,20 @@ function convertToUser(json payload) returns @tainted User {
     addString(input[ID], user, ID);
     addString(input[TIME_ZONE_VAR], user, TIME_ZONE);
     addString(input[AVATAR_URL_VAR], user, AVATAR_URL);
+    addString(input[HTML_URL_VAR], user, HTML_URL);
+    addString(input[SELF], user, URL);
     addString(input[JOB_TITLE_VAR], user, JOB_TITLE);
     addString(input[NAME], user, NAME);
     addString(input[EMAIL], user, EMAIL);
     addString(input[COLOR], user, COLOR);
     addString(input[DESCRIPTION], user, DESCRIPTION);
+    addString(input[SUMMARY], user, SUMMARY);
     user.invitationSent = (input[INVITATION_SENT_VAR] != ()) ? <boolean>input[INVITATION_SENT_VAR] : false;
     addRoleToUser(input, user);
 
     // Converts to contactMethods
-    var contactMethod = input[CONTACT_METHOD_VAR];
-    if (contactMethod.toString() != "") {
+    var contactMethods = input[CONTACT_METHODS_VAR];
+    if (contactMethods.toString() != "") {
         user.contactMethods = convertToContactMethods(input);
     }
     // Converts to notification rules
@@ -163,6 +169,12 @@ function contactMethodToPayload(ContactMethod|json input) returns map<json> {
     addStringToPayload(contactMethod[ID], payload, ID);
     addLabelToContactMethod(contactMethod[LABEL].toString(), payload);
     addIntToPayload(contactMethod[COUNTRY_CODE], payload, COUNTRY_CODE_VAR);
+    addIntToPayload(contactMethod[ENABLED], payload, ENABLED);
+    addIntToPayload(contactMethod[BLACK_LISTED], payload, BLACK_LISTED);
+    var sentShortEmail = contactMethod[SENT_SHORT_EMAIL];
+    if (sentShortEmail is boolean) {
+        payload[SENT_SHORT_EMAIL_VAR] = sentShortEmail.toString();
+    }
     value = contactMethod[TYPE].toString();
     if (value == EMAIL) {
         payload[TYPE] = EMAIL_CONTACT_METHOD;
@@ -170,24 +182,10 @@ function contactMethodToPayload(ContactMethod|json input) returns map<json> {
         payload[TYPE] = PHONE_CONTACT_METHOD;
     } else if (value == SMS) {
         payload[TYPE] = SMS_CONTACT_METHOD;
-    } else {
-        payload[TYPE] = PHONE_NOTIFICATION_CONTACT_METHOD;
+    } else if (value == PUSH_NOTIFICATION) {
+        payload[TYPE] = PUSH_NOTIFICATION_CONTACT_METHOD;
     }
     return payload;
-}
-
-function addLabelToContactMethod(string label, map<json> payload) {
-    if (label != "") {
-        if (label == INPUT_WORK) {
-            payload[LABEL] = WORK;
-        } else if (label == INPUT_HOME) {
-            payload[LABEL] = HOME;
-        } else if (label == INPUT_PHONE) {
-          payload[LABEL] = PHONE;
-        } else if (label == SKYPE) {
-          payload[LABEL] = SKYPE;
-        }
-    }
 }
 
 function convertToContactMethod(json resp) returns ContactMethod {
@@ -198,32 +196,52 @@ function convertToContactMethod(json resp) returns ContactMethod {
     addString(result[SUMMARY], contactMethod, SUMMARY);
     addString(result[ADDRESS], contactMethod, ADDRESS);
     addString(result[HTML_URL_VAR], contactMethod, HTML_URL);
+    addString(result[ENABLED], contactMethod, ENABLED);
+    addString(result[BLACK_LISTED], contactMethod, BLACK_LISTED);
+    string sentShortEmail = result[SENT_SHORT_EMAIL_VAR].toString();
+    if (sentShortEmail != "") {
+        contactMethod[SENT_SHORT_EMAIL] = <boolean>result[SENT_SHORT_EMAIL_VAR];
+    }
     string value = result[TYPE].toString();
     if (value != "") {
-        if (value == EMAIL_CONTACT_METHOD || value == EMAIL_CONTACT_METHOD_REF ) {
+        if (value == EMAIL_CONTACT_METHOD || value == EMAIL_CONTACT_METHOD_REF) {
             contactMethod.'type = EMAIL;
         } else if (value == PHONE_CONTACT_METHOD || value == PHONE_CONTACT_METHOD_REF) {
             contactMethod.'type = INPUT_PHONE;
         } else if (value == SMS_CONTACT_METHOD || value == SMS_CONTACT_METHOD_REF) {
             contactMethod.'type = SMS;
-        } else {
+        } else if (value == PUSH_NOTIFICATION_CONTACT_METHOD || value == PUSH_CONTACT_METHOD_REF) {
             contactMethod.'type = PUSH_NOTIFICATION;
         }
     }
     value = result[LABEL].toString();
     if (value != "") {
         if (value == WORK) {
-          contactMethod.label = INPUT_WORK;
+            contactMethod.label = INPUT_WORK;
         } else if (value == HOME) {
-          contactMethod.label = INPUT_HOME ;
+            contactMethod.label = INPUT_HOME ;
         } else if (value == PHONE) {
-          contactMethod.label = INPUT_PHONE;
-        } else {
-          contactMethod.label = INPUT_SKYPE;
+            contactMethod.label = INPUT_PHONE;
+        } else if (value == SKYPE) {
+            contactMethod.label = INPUT_SKYPE;
         }
     }
     addInt(result[COUNTRY_CODE_VAR], contactMethod, COUNTRY_CODE);
     return contactMethod;
+}
+
+function addLabelToContactMethod(string label, map<json> payload) {
+    if (label != "") {
+        if (label == INPUT_WORK) {
+            payload[LABEL] = WORK;
+        } else if (label == INPUT_HOME) {
+            payload[LABEL] = HOME;
+        } else if (label == INPUT_PHONE) {
+            payload[LABEL] = PHONE;
+        } else if (label == INPUT_SKYPE) {
+            payload[LABEL] = SKYPE;
+        }
+    }
 }
 
 function notificationRuleToPayload(NotificationRule|json input) returns map<json> {
@@ -259,7 +277,7 @@ function convertToNotificationRule(json resp) returns NotificationRule {
         rule.'type = ASSIGNMENT_NOTIFICATION_RULE;
     }
     addString(result[ID], rule, ID);
-    addString(result[URL], rule, SELF);
+    addString(result[SELF], rule, URL);
     addString(result[SUMMARY], rule, SUMMARY);
     addString(result[HTML_URL_VAR], rule, HTML_URL);
     addUrgency(result[URGENCY], rule);
@@ -333,13 +351,15 @@ function addNotificationRulesToPayload(NotificationRule[]?|json[]? rules, map<js
 }
 
 function addUsersToPayload(User[]? users, @tainted map<json> payload, string fieldName) {
-     int i = 0;
-     json[] list = [];
-     if (users is User[]) {
-         while (i < users.length()) {
-             list[i] = userToPayload(users[i]);
-             i = i + 1;
-         }
-     }
-     payload[fieldName] = list;
+    int i = 0;
+    json[] list = [];
+    if (users is User[]) {
+        while (i < users.length()) {
+            list[i] = userToPayload(users[i]);
+            i = i + 1;
+        }
+    }
+    if (list.length() > 0 ) {
+        payload[fieldName] = list;
+    }
 }

@@ -49,7 +49,7 @@ Extension createdExtension = { 'type: "extension", name: "", 'services: [], exte
                                {'type: "extension", id: ""}};
 @test:Config {}
 function testCreateUser() {
-    User user =  {'type: "user", name: "dsa", email: "ex@gmail.com"};
+    User user =  {'type: "user", name: "John", email: "ex@gmail.com"};
     var response = userClient->createUser(user);
     if(response is error) {
         test:assertFail(msg = response.toString());
@@ -104,7 +104,7 @@ function testGetContactMethods() {
 @test:Config {
     dependsOn: ["testCreateContactMethod"]
 }
-function testGetUseNotificationRules() {
+function testGetUserNotificationRules() {
     var response = userClient->getUserNotificationRules(userId);
     if (response is NotificationRule[]) {
         test:assertTrue(response.length() > 0);
@@ -148,7 +148,7 @@ function testGetContactMethodById() {
 }
 
 @test:Config {
-    dependsOn: ["testGetUseNotificationRules"]
+    dependsOn: ["testGetUserNotificationRules"]
 }
 function testGetNotificationRuleById() {
     var response = userClient->getUserNotificationRuleById(ruleId, userId);
@@ -158,7 +158,7 @@ function testGetNotificationRuleById() {
 }
 
 @test:Config {
-    dependsOn: ["testGetUseNotificationRules"]
+    dependsOn: ["testGetUserNotificationRules"]
 }
 function testCreateEscalationPolicy() {
     EscalationPolicy escalationPolicy = { 'type: "escalationPolicy",
@@ -228,7 +228,7 @@ function testCreateSchedule() {
     dependsOn: ["testCreateSchedule"]
 }
 function testGetSchedules() {
-    var response = scheduleClient->get();
+    var response = scheduleClient->getAll();
     if (response is Schedule[]) {
         test:assertTrue(response.length() > 0);
     } else {
@@ -250,6 +250,7 @@ function testGetScheduleById() {
     dependsOn: ["testUpdateEscalationPolicy"]
 }
 function testCreateService() {
+    time:Time time = time:currentTime();
     Service serv = { name: "New service",
                      escalationPolicy:
                             createdEscalationPolicy
@@ -430,7 +431,7 @@ function testUpdateIncident() {
 
 @test:Config {
     dependsOn: ["testUpdateIncidents", "testCreateNotificationRule", "testGetUserById", "testGetContactMethodById",
-                "testGetNotificationRuleById", "testGetUseNotificationRules"]
+                "testGetNotificationRuleById", "testGetUserNotificationRules"]
 }
 function tesDeleteNotificationRule() {
     var response = userClient->deleteNotificationRule(ruleId, userId);
@@ -483,7 +484,7 @@ function TestDeleteContactMethod() {
 @test:Config {
     dependsOn: ["testUpdateIncidents", "testCreateNotificationRule", "testGetUserById", "testGetContactMethodById",
                 "testGetNotificationRuleById", "tesDeleteNotificationRule", "TestDeleteContactMethod",
-                "testGetUseNotificationRules", "tesDeleteNotificationRule", "testCreateSchedule"]
+                "testGetUserNotificationRules", "tesDeleteNotificationRule", "testCreateSchedule"]
 }
 function testDeleteUser() {
     var response = userClient->deleteUser(userId);

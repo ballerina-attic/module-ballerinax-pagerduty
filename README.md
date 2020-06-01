@@ -18,7 +18,7 @@ The following sections provide you details on how to use the `pagerduty`.
 
 ## Feature Overview
 
-The following collections are provided by Ballerina to interact with different API groups of the pagerDuty REST API. 
+The following collections are provided by Ballerina to interact with different API groups of the PagerDuty REST API. 
 - **pagerDuty:Account** - The `Account`, which is used to initiate the contact with the PagerDuty API and create all the associated sub groups with the operations.   
 - **pagerDuty:UserClient** - The `UserClient`, which will be used to create/get/delete the Users/Contact methods/ Notification rules.
 - **pagerDuty:EscalationPolicyClient** - The `EscalationPolicyClient`, which will be used to create/get/update/delete the escalation policies.

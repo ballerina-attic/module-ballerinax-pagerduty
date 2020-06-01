@@ -33,6 +33,7 @@ function convertToSchedule(map<json> response) returns @tainted Schedule {
     addString(response[TIME_ZONE_VAR], schedule, TIME_ZONE);
     addString(response[SUMMARY], schedule, SUMMARY);
     addString(response[SELF], schedule, URL);
+    addString(response[HTML_URL_VAR], schedule, HTML_URL);
     addString(response[DESCRIPTION], schedule, DESCRIPTION);
     addString(response[NAME], schedule, NAME);
     addString(response[ID], schedule, ID);
@@ -48,7 +49,7 @@ function convertToSchedule(map<json> response) returns @tainted Schedule {
         }
     }
     i = 0;
-    var policies = response[SCHEDULE_LAYERS_VAR];
+    var policies = response[ESCALATION_POLICIES_VAR];
     if (policies != ()) {
         json[] policyList = <json[]>policies;
         while (i < policyList.length()) {
@@ -76,27 +77,18 @@ function convertToSchedule(map<json> response) returns @tainted Schedule {
     return schedule;
 }
 
-function addUsers(map<json> response, @tainted Schedule|ScheduleLayer output) {
-    int i = 0;
-    json[] userList = <json[]>response[USERS];
-    while (i < userList.length()) {
-        output.users[i] = convertToUser(userList[i]);
-        i = i + 1;
-    }
-}
-
 function convertToScheduleLayer(map<json> input) returns @tainted ScheduleLayer {
     time:Time time = time:currentTime();
     var output  = time:parse("00:00:00", "HH:mm:ss");
     if (output is time:Time) {
         time = output;
     }
-    ScheduleLayer scheduleLayer = { 'start: time, users: [] ,rotationVirtualStart: time,
+    ScheduleLayer scheduleLayer = { 'start: time, users: [] , rotationVirtualStart: time,
                                     rotationTurnLengthInSeconds: 0};
     setTimeFromString(input[START], scheduleLayer, START);
     setTimeFromString(input[ROTATION_VIRTUAL_START_VAR], scheduleLayer, ROTATION_VIRTUAL_START);
     setTimeFromString(input[END], scheduleLayer, END);
-    addUsers(input, scheduleLayer);
+    addUsersToScheduleLayer(input, scheduleLayer);
     addString(input[NAME], scheduleLayer, NAME);
     addString(input[ID], scheduleLayer, ID);
     addInt(input[ROTATION_TURN_LENGTH_VAR], scheduleLayer, ROTATION_TURN_LENGTH);
@@ -116,6 +108,28 @@ function convertToScheduleLayer(map<json> input) returns @tainted ScheduleLayer 
     return scheduleLayer;
 }
 
+function addUsers(map<json> response, @tainted Schedule output) {
+    int i = 0;
+    json[] userList = <json[]>response[USERS];
+    while (i < userList.length()) {
+        output.users[i] = convertToUser(userList[i]);
+        i = i + 1;
+    }
+}
+
+function addUsersToScheduleLayer(map<json> response, @tainted ScheduleLayer output) {
+    int i = 0;
+    json[] userList = <json[]>response[USERS];
+    while (i < userList.length()) {
+        map<json> users = <map<json>>userList[i];
+        var user = users[USER];
+        if (user != ()) {
+            output.users[i] = convertToUser(user);
+        }
+        i = i + 1;
+    }
+}
+
 function convertToFinalSchedule(map<json> input) returns @tainted FinalSchedule {
     FinalSchedule finalSchedule = {"name": FINAL_SCHEDULE};
     string value = input[NAME].toString();
@@ -123,7 +137,7 @@ function convertToFinalSchedule(map<json> input) returns @tainted FinalSchedule 
         if (value == FINAL_SCHEDULE_VAR) {
             finalSchedule.name = FINAL_SCHEDULE;
         } else if (value == OVERIDES) {
-            finalSchedule.name = OVERIDE;
+            finalSchedule.name = OVERIDES;
         }
     }
     int i = 0;
@@ -255,7 +269,7 @@ function finalScheduleToPayload(FinalSchedule input) returns @tainted map<json> 
         if (value == FINAL_SCHEDULE) {
             payload[NAME] = FINAL_SCHEDULE_VAR;
         } else if (value == OVERIDES) {
-            payload[NAME] = OVERIDE;
+            payload[NAME] = OVERIDES;
         }
     }
     int i = 0;
