@@ -66,7 +66,8 @@ public function main() {
 
     string userId = "";
     pagerduty:User user =  { 'type: "user", name: "Abisayan", email: "example@gmail.com", role: "admin"};
-    pagerduty:ContactMethod contactMethod = { 'type: "sms", summary: "Home", label: "home", countryCode: 1, address: "5766792895"};
+    pagerduty:ContactMethod contactMethod = { 'type: "sms", summary: "Home", label: "home", countryCode: 1,
+                                               address: "5766792895"};
     pagerduty:EscalationPolicy createdPolicy = { 'type: "sms", id: "", name: "", escalationRules: []};
     pagerduty:Service createdService = { name: "service", escalationPolicy: createdPolicy};
     pagerduty:ContactMethod createdContactMethod = { 'type: "sms", address: "5766792895"};
@@ -129,7 +130,8 @@ public function main() {
     }
 
     // Creates a new service
-    pagerduty:Service serv = { name: "New services", escalationPolicy: createdPolicy, alertCreation:"createAlertsAndIncidents"};
+    pagerduty:Service serv = { name: "New services", escalationPolicy: createdPolicy,
+                               alertCreation:"createAlertsAndIncidents"};
     pagerduty:Service|pagerduty:Error resp = serviceClient->createService(serv);
     if (resp is pagerduty:Error) {
         io:println("Error" + resp.toString());

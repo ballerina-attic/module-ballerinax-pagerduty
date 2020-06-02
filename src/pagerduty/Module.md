@@ -7,9 +7,6 @@ It handles the API Token Authentication. Following tokens are can be used under 
 Only account administrators have the ability to generate account API tokens.
 * **User API token** - It can access all the data that the associated user account has access to.
 
->**Note:** According to the account's role permission, the user API token can access all the available functionality. However,
-> the account API token can't access the operations, which need the `from email Id`. They are `createUser`, `createIncident`, `createEscalationPolicy`, `createSchedule`, `manageIncidents`, `updateIncident`, and `addNote`.
-
 The following groups are provided by Ballerina to interact with the different API groups of the PagerDuty REST API. 
 - **pagerDuty:Account** - The `Account`, which is used to initiate the contact with the PagerDuty API and create all the associated sub groups with the operations. 
 - **pagerDuty:UserClient** - The `UserClient`, which will be used to create/get/delete the Users/Contact methods/ Notification rules.
@@ -21,10 +18,10 @@ The following groups are provided by Ballerina to interact with the different AP
 
 ## Compatibility
 
-|                             |           Version           |
-|:---------------------------:|:---------------------------:|
-| Ballerina Language          |            1.2.X            |
-| PagerDuty REST API          |            v2               |
+|                     |    Version     |
+|:-------------------:|:--------------:|
+| Ballerina Language  | 1.2.x          |
+| PagerDuty REST API  | v2             |
 
 ## Sample
 
@@ -37,7 +34,9 @@ The following groups are provided by Ballerina to interact with the different AP
     * Account API token:
         * Go to Configuration->API Access->Create New API Key
         
->**Note:** The user API token supports all the available functionalities of the role permission. However, the account API token can't access the operations, which need the `from email Id`(`createUser`, `createIncident`, `createEscalationPolicy`, `createSchedule`, `manageIncidents`, `updateIncident`, and `addNote`).
+>**Note:** According to the account's role permission, the user API token can access all the available functionality. However,
+> the account API token can't access the operations, which need the `from email Id`. They are `createUser`, 
+> `createIncident`, `createEscalationPolicy`, `createSchedule`, `manageIncidents`, `updateIncident`, and `addNote`.
 
 **Create the `pagerduty:Account`**
 
