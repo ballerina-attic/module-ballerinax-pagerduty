@@ -65,13 +65,13 @@ public function main() {
     pagerduty:IncidentClient incidentClient = pagerduty.getIncidentClient();
 
     string userId = "";
-    pagerduty:User user =  { 'type: "user", name: "Abisayan", email: "example@gmail.com", role: "admin"};
+    pagerduty:User user =  { 'type: "user", name: "Abisayan", email: "example@gmail.com", role: "admin" };
     pagerduty:ContactMethod contactMethod = { 'type: "sms", summary: "Home", label: "home", countryCode: 1,
-                                               address: "5766792895"};
-    pagerduty:EscalationPolicy createdPolicy = { 'type: "sms", id: "", name: "", escalationRules: []};
-    pagerduty:Service createdService = { name: "service", escalationPolicy: createdPolicy};
-    pagerduty:ContactMethod createdContactMethod = { 'type: "sms", address: "5766792895"};
-    pagerduty:User createdUser =  { 'type: "user", name: "", email: "a@gmail.com"};
+                                               address: "5766792895" };
+    pagerduty:EscalationPolicy createdPolicy = { 'type: "sms", id: "", name: "", escalationRules: [] };
+    pagerduty:Service createdService = { name: "service", escalationPolicy: createdPolicy };
+    pagerduty:ContactMethod createdContactMethod = { 'type: "sms", address: "5766792895" };
+    pagerduty:User createdUser =  { 'type: "user", name: "", email: "a@gmail.com" };
 
     // Creates a new user
     pagerduty:Error|pagerduty:User output = userClient->createUser(user);
@@ -93,8 +93,8 @@ public function main() {
     }
 
     // Creates a new notification rule
-    pagerduty:NotificationRule rule = { startDelayInMinutes: 1, contactMethod : createdContactMethod, urgency: "high",
-                              'type: "assignmentNotificationRule"};
+    pagerduty:NotificationRule rule = { startDelayInMinutes: 1, contactMethod : createdContactMethod, 
+                                        urgency: "high", 'type: "assignmentNotificationRule" };
     pagerduty:Error|pagerduty:NotificationRule createdRule = userClient->createNotificationRule(userId, rule);
     if (createdRule is pagerduty:Error) {
         io:println("Error" + createdRule.toString());
@@ -104,9 +104,9 @@ public function main() {
 
     // Creates a new escalation policy
     pagerduty:EscalationPolicy escalationPolicy = { 'type: "escalationPolicy", name: "Escalation Policy for Test",
-                                                    escalationRules: [{ escalationDelayInMinutes: 30,
-                                                    targets: [{id: userId, 'type: "user"}]}]
-                                        };
+                                                     escalationRules: [{ escalationDelayInMinutes: 30,
+                                                     targets: [{id: userId, 'type: "user"}]}]
+                                                  };
     pagerduty:EscalationPolicy|pagerduty:Error response = escalationClient->create(escalationPolicy);
     if (response is pagerduty:Error) {
         io:println("Error" + response.toString());
@@ -121,7 +121,7 @@ public function main() {
                                     scheduleLayers: [{ 'start: time, rotationTurnLengthInSeconds: 86400,
                                                         rotationVirtualStart: time, users: [createdUser]
                                                      }]
-                                   };
+                                  };
     pagerduty:Schedule|pagerduty:Error createdSchedule = scheduleClient->create(schedule);
     if (createdSchedule is pagerduty:Error) {
        io:println("Error" + createdSchedule.toString());
@@ -131,7 +131,7 @@ public function main() {
 
     // Creates a new service
     pagerduty:Service serv = { name: "New services", escalationPolicy: createdPolicy,
-                               alertCreation:"createAlertsAndIncidents"};
+                               alertCreation:"createAlertsAndIncidents" };
     pagerduty:Service|pagerduty:Error resp = serviceClient->createService(serv);
     if (resp is pagerduty:Error) {
         io:println("Error" + resp.toString());
@@ -155,7 +155,7 @@ public function main() {
     }
 
     // Creates a new incident
-    pagerduty:Incident incident = {'type: "incident", title: "Test", 'service: createdService};
+    pagerduty:Incident incident = { 'type: "incident", title: "Test", 'service: createdService };
     pagerduty:Incident|pagerduty:Error createdIncident = incidentClient->createIncident(incident);
     if (createdIncident is pagerduty:Error) {
         io:println("Error" + createdIncident.toString());

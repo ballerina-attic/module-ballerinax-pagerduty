@@ -178,7 +178,8 @@ pagerduty:IncidentClient incidentClient = pagerduty.getIncidentClient();
 pagerduty:Incident incident = {
         title: "Test",
         'type: "incident", 
-        'service: createdService};
+        'service: createdService
+};
 pagerduty:Incident|pagerduty:Error createdIncident = incidentClient->createIncident(incident);
 if (createdIncident is pagerduty:Error) {
     io:println("Error" + createdIncident.toString());
