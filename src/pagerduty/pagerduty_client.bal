@@ -217,7 +217,7 @@ public type UserClient client object {
     # + teamIds - The set of values of team IDs as a `string`(eg: "P45PSCE,PC6BQII"), which is used to filter the
     #             users who are related to these teams
     # + return - A set of `pagerduty:User`s or else a `pagerduty:Error` if any error occured
-    public remote function getUsers(string query = "", string? teamIds = ()) returns User[]|Error {
+    public remote function getUsers(string query = "", public string? teamIds = ()) returns User[]|Error {
         return <@untainted> getUsers(self.userClient, query, teamIds);
     }
 
@@ -398,7 +398,7 @@ public type ScheduleClient client object {
     #              one schedule entry is returned with a start of `2020-05-16T00:00:00Z` and end of
     #              `2020-05-17T00:00:00Z`.
     # + return - A `pagerduty:Schedule` or else a `pagerduty:Error` if any error occurred
-    public remote function create(Schedule schedule, boolean overflow = false) returns Schedule|Error {
+    public remote function create(Schedule schedule, public boolean overflow = false) returns Schedule|Error {
         return <@untainted> createSchedule(self.scheduleClient, schedule, overflow);
     }
 
