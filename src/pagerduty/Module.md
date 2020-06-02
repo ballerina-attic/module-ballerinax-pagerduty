@@ -39,7 +39,7 @@ The following groups are provided by Ballerina to interact with the different AP
         
 >**Note:** The user API token supports all the available functionalities of the role permission. However, the account API token can't access the operations, which need the `from email Id`(`createUser`, `createIncident`, `createEscalationPolicy`, `createSchedule`, `manageIncidents`, `updateIncident`, and `addNote`).
 
->**Create the `pagerduty:Account`**
+**Create the `pagerduty:Account`**
 
 First, execute the below command to import the `ballerinax/pagerduty` module into the Ballerina project.
 ```ballerina
@@ -55,11 +55,16 @@ Account pagerduty = new("API_TOKEN");
 
 **PagerDuty operations related to `Users`**
 
-The `createUser` remote function can be used to create a user in PagerDuty `Users`. 
+The `createUser` remote function can be used to create a user in PagerDuty `UserClient`. 
 
 ```ballerina
 pagerduty:UserClient userClient = pagerduty.getUserClient();
-pagerduty:User user =  { 'type: "user", name: "sayan", email: "exa@gmail.com", role: "admin"};
+pagerduty:User user =  { 
+    'type: "user"," 
+     name: "sayan", 
+     email: "exa@gmail.com", 
+     role: "admin"
+};
 pagerduty:Error|pagerduty:User output = userClient->createUser(user);
 if (output is pagerduty:Error) {
     io:println("Error" + output.toString());
@@ -72,16 +77,22 @@ if (output is pagerduty:Error) {
 
 **Pagerduty operations related to `EscalationPolicies`**
 
-The `create` remote function can be used to create the escalation policy in PagerDuty `Escalation Policies`.
+The `create` remote function can be used to create the escalation policy in PagerDuty `EscalationPolicyClient`.
 
 ```ballerina
 pagerduty:EscalationPolicyClient escalationClient = pagerduty.getEscalationPolicyClient();
-pagerduty:EscalationPolicy escalationPolicy = { 'type: "escalationPolicy", name: "Escalation Policy for Test",
-                                                 escalationRules: [{ escalationDelayInMinutes: 30,
-                                                                     targets: [{id: userId, 'type: "user"}]
-                                                                  }]
-                                              };
-pagerduty:EscalationPolicy|pagerduty:Error response = escalationClient->create(escalationPolicy);
+pagerduty:EscalationPolicy escalationPolicy = { 
+        'type: "escalationPolicy", name: "Escalation Policy for Test",
+        escalationRules: [{ 
+                  escalationDelayInMinutes: 30,
+                  targets: [{
+                     id: userId,
+                     'type: "user"
+                  }]
+        }]
+};
+pagerduty:EscalationPolicy|pagerduty:Error response = escalationClient->
+                                                            create(escalationPolicy);
 if (response is pagerduty:Error) {
     io:println("Error" + response.toString());
 } else {
@@ -90,18 +101,23 @@ if (response is pagerduty:Error) {
 }
 ```
 
-**Pagerduty operations related to `Schedules`**
+**Pagerduty operations related to `ScheduleClient`**
 
-The `create` remote function can be used to create the schedule in PagerDuty `Schedules`.  
+The `create` remote function can be used to create the schedule in PagerDuty `ScheduleClient`.  
 
 ```ballerina
 pagerduty:ScheduleClient scheduleClient = pagerduty.getScheduleClient();
 time:Time time = time:currentTime();
-pagerduty:Schedule schedule = { 'type: "schedule", timeZone: "Asia/Colombo",
-                                scheduleLayers: [{ 'start: time, rotationTurnLengthInSeconds: 86400,
-                                                   rotationVirtualStart: time, users: [createdUser]
-                                                }]
-                               };
+pagerduty:Schedule schedule = { 
+        'type: "schedule",
+        timeZone: "Asia/Colombo",
+        scheduleLayers: [{ 
+                'start: time,
+                rotationTurnLengthInSeconds: 86400,
+                rotationVirtualStart: time, 
+                users: [createdUser]
+        }]
+};
 pagerduty:Schedule|pagerduty:Error createdSchedule = scheduleClient->create(schedule);
 if (createdSchedule is pagerduty:Error) {
    io:println("Error" + createdSchedule.toString());
@@ -110,13 +126,17 @@ if (createdSchedule is pagerduty:Error) {
 }
 ```
 
-**Pagerduty operations related to `Services`**
+**Pagerduty operations related to `ServiceClient`**
 
-The `createService` remote function can be used to create the Services in PagerDuty `Services`. 
+The `createService` remote function can be used to create the Services in PagerDuty `ServiceClient`. 
 
 ```ballerina
 pagerduty:ServiceClient serviceClient = pagerduty.getServiceClient();
-pagerduty:Service serv = { name: "New services", escalationPolicy: createdPolicy, alertCreation:"createAlertsAndIncidents"};
+pagerduty:Service serv = { 
+        name: "New services", 
+        escalationPolicy: createdPolicy,
+        alertCreation:"createAlertsAndIncidents"
+};
 pagerduty:Service|pagerduty:Error resp = serviceClient->createService(serv);
 if (resp is pagerduty:Error) {
     io:println("Error" + resp.toString());
@@ -126,17 +146,22 @@ if (resp is pagerduty:Error) {
 }
 ```
 
-**Pagerduty operations related to `Extensions`**
+**Pagerduty operations related to `ExtensionClient`**
 
-The `create` remote function can be used to create the extension in PagerDuty `Extensions`. 
+The `create` remote function can be used to create the extension in PagerDuty `ExtensionClient`. 
 
 ```ballerina
 pagerduty:ExtensionClient extensionClient = pagerduty.getExtensionClient();
-pagerduty:Extension extension = {  'type: "extension", name: "webhook",
-                                   endpointUrl: "http://fc321768.ngrok.io/webhooks",
-                                   extensionSchema: {id: "PJFWPEP", 'type: "extensionSchemaReference",
-                                   summary: "Generic V2 Webhook"}, services: [createdService]
-                                };
+pagerduty:Extension extension = {  
+        'type: "extension", name: "webhook",
+        endpointUrl: "http://fc321768.ngrok.io/webhooks",
+        extensionSchema: {
+                id: "PJFWPEP",
+                'type: "extensionSchemaReference",
+                summary: "Generic V2 Webhook"
+        }, 
+        services: [createdService]
+};
 pagerduty:Extension|pagerduty:Error createdExtension = extensionClient->create(extension);
 if (createdExtension is pagerduty:Error) {
     io:println("Error" + createdExtension.toString());
@@ -145,13 +170,16 @@ if (createdExtension is pagerduty:Error) {
 }
 ```
 
-**Pagerduty operations related to `Incidents`**
+**Pagerduty operations related to `IncidentClient`**
 
-The `createIncident` remote function can be used to create the incident in PagerDuty `Incidents`.  
+The `createIncident` remote function can be used to create the incident in PagerDuty `IncidentClient`.  
 
 ```ballerina
 pagerduty:IncidentClient incidentClient = pagerduty.getIncidentClient();
-pagerduty:Incident incident = {'type: "incident", title: "Test", 'service: createdService};
+pagerduty:Incident incident = {
+        title: "Test",
+        'type: "incident", 
+        'service: createdService};
 pagerduty:Incident|pagerduty:Error createdIncident = incidentClient->createIncident(incident);
 if (createdIncident is pagerduty:Error) {
     io:println("Error" + createdIncident.toString());
