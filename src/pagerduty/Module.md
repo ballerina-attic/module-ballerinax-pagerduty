@@ -20,7 +20,7 @@ The following groups are provided by Ballerina to interact with the different AP
 
 |                     |    Version     |
 |:-------------------:|:--------------:|
-| Ballerina Language  | 1.2.x          |
+| Ballerina Language  | 2.0.0          |
 | PagerDuty REST API  | v2             |
 
 ## Sample

@@ -14,12 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
+type JsonArray json[];
+type MapJson map<json>;
+
 function incidentToPayload(Incident|json input) returns @tainted map<json> {
     map<json>|Incident incident = {};
-    if (input is json && input != ()) {
-        incident = <map<json>>input;
-    } else if (input is Incident) {
+    if (input is Incident) {
         incident = input;
+    } else if (input != ()) {
+        incident = <map<json>>input;
     }
     map<json> payload = {};
     var value = incident[TYPE];

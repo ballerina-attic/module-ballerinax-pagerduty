@@ -22,4 +22,4 @@ type Detail record {
 };
 
 # Represents the PagerDuty error type with details.
-public type Error error<Detail>;
+public type Error distinct error<Detail>;

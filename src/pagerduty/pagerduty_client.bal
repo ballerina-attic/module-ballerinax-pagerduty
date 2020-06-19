@@ -35,7 +35,7 @@ public type Account object {
     private ExtensionClient extensionClient;
     private IncidentClient incidentClient;
 
-    public function __init(string apiToken) {
+    public function init(string apiToken) {
         oauth2:OutboundOAuth2Provider oauth2Provider = new({accessToken: apiToken});
         TokenAuthHandler oauth2Handler = new(oauth2Provider);
         http:ClientConfiguration accountConfig = {
@@ -136,7 +136,7 @@ public type UserClient client object {
     private http:Client userClient;
     private string emailId = "";
 
-    function __init(http:Client pagerDuty, string emailId) {
+    function init(http:Client pagerDuty, string emailId) {
         self.userClient = pagerDuty;
         self.emailId = emailId;
     }
@@ -151,8 +151,8 @@ public type UserClient client object {
     # + return - A `pagerduty:User` or else a `pagerduty:Error` if any error occurred
     public remote function createUser(User user) returns User|Error {
         if (self.emailId == "") {
-            return <@untainted> Error(message = "Can't access the `createUser` operation without " +
-                                      "logged-in user email id", cause = getError());
+            return <@untainted> Error("Can't access the `createUser` operation without " +
+                                      "logged-in user email id", getError());
         }
         return <@untainted> createUser(self.userClient, user, self.emailId);
     }
@@ -309,7 +309,7 @@ public type EscalationPolicyClient client object {
     private http:Client escalationPolicyClient;
     private string emailId = "";
 
-    function __init(http:Client pagerDuty, string emailId) {
+    function init(http:Client pagerDuty, string emailId) {
         self.escalationPolicyClient = pagerDuty;
         self.emailId = emailId;
     }
@@ -326,8 +326,8 @@ public type EscalationPolicyClient client object {
     # + return - A `pagerduty:EscalationPolicy` or else a `pagerduty:Error` if any error  occurred
     public remote function create(EscalationPolicy escalationPolicy) returns EscalationPolicy|Error {
         if (self.emailId == "") {
-            return Error(message = "Can't access the `createEscalationPolicy` operation without logged-in user" +
-                         " email id", cause = getError());
+            return Error("Can't access the `createEscalationPolicy` operation without logged-in user" +
+                         " email id", getError());
         }
         return <@untainted> createEscalationPolicy(self.escalationPolicyClient, escalationPolicy, self.emailId);
     }
@@ -378,7 +378,7 @@ public type ScheduleClient client object {
 
     private http:Client scheduleClient;
 
-    function __init(http:Client pagerDuty) {
+    function init(http:Client pagerDuty) {
         self.scheduleClient = pagerDuty;
     }
 
@@ -444,7 +444,7 @@ public type ServiceClient client object {
 
     private http:Client serviceClient;
 
-    function __init(http:Client pagerduty) {
+    function init(http:Client pagerduty) {
         self.serviceClient = pagerduty;
     }
 
@@ -522,7 +522,7 @@ public type ExtensionClient client object {
 
     private http:Client extensionClient;
 
-    function __init(http:Client pagerDuty) {
+    function init(http:Client pagerDuty) {
        self.extensionClient = pagerDuty;
     }
 
@@ -587,7 +587,7 @@ public type IncidentClient client object {
     private http:Client incidentClient;
     private string emailId = "";
 
-    function __init(http:Client pagerDuty, string emailId) {
+    function init(http:Client pagerDuty, string emailId) {
        self.incidentClient = pagerDuty;
        self.emailId = emailId;
     }
@@ -605,8 +605,8 @@ public type IncidentClient client object {
     # + return - A `pagerduty:Incident` or else a `pagerduty:Error` if any error occurred
     public remote function createIncident(Incident incident) returns Incident|Error {
         if (self.emailId == "") {
-            return <@untainted> Error(message = "Can't access the `createIncident` operation without logged-in" +
-                                      " user email id", cause = getError());
+            return <@untainted> Error("Can't access the `createIncident` operation without logged-in" +
+                                      " user email id", getError());
         }
         return <@untainted> createIncident(self.incidentClient, incident, self.emailId);
     }
@@ -632,8 +632,8 @@ public type IncidentClient client object {
     # + return - A list of `pagerduty:Incident`s or else a `pagerduty:Error` if any error occurred
     public remote function updateIncidents(Incident[]|json[] incident) returns Incident[]|Error {
         if (self.emailId == "") {
-            return <@untainted> Error(message = "Can't access the `updateIncidents` operation without logged-in " +
-                                      "user email id", cause = getError());
+            return <@untainted> Error("Can't access the `updateIncidents` operation without logged-in " +
+                                      "user email id", getError());
         }
         return <@untainted> updateIncidents(self.incidentClient, incident, self.emailId);
     }
@@ -649,8 +649,8 @@ public type IncidentClient client object {
     # + return - A `pagerduty:Incident` or else a `pagerduty:Error` if any error occurred
     public remote function updateIncident(string incidentId, Incident|json incident) returns Incident|Error {
         if (self.emailId == "") {
-            return <@untainted> Error(message = "Can't access the `updateIncident` operation without " +
-                                      "logged-in user email id", cause = getError());
+            return <@untainted> Error("Can't access the `updateIncident` operation without " +
+                                      "logged-in user email id", getError());
         }
        return <@untainted> updateIncident(self.incidentClient, incidentId, incident, self.emailId);
     }
@@ -666,8 +666,8 @@ public type IncidentClient client object {
     # + return - A `pagerduty:Note` or else a `pagerduty:Error` if any error occurred
     public remote function addNote(string incidentId, Note note) returns Note|Error {
         if (self.emailId == "") {
-            return <@untainted> Error(message = "Can't access the `addNote` operation without logged-in user email id",
-                                      cause = getError());
+            return <@untainted> Error("Can't access the `addNote` operation without logged-in user email id",
+                                      getError());
         }
         return <@untainted> addNote(self.incidentClient, incidentId, note, self.emailId);
     }
@@ -682,8 +682,8 @@ public type IncidentClient client object {
     # + return - A `pagerduty:Incident` or else a `pagerduty:Error` if any error occurred
     public remote function snoozeIncident(string incidentId, int durationInSeconds) returns Incident|Error {
         if (self.emailId == "") {
-            return <@untainted> Error(message = "Can't access the `snoozeIncident` operation without logged-in " +
-                                      "user email id", cause = getError());
+            return <@untainted> Error("Can't access the `snoozeIncident` operation without logged-in " +
+                                      "user email id", getError());
         }
         return <@untainted> snoozeIncident(self.incidentClient, incidentId, durationInSeconds, self.emailId);
     }

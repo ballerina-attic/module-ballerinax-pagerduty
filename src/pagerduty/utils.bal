@@ -17,44 +17,56 @@
 import ballerina/http;
 
 function createUser(http:Client userClient, User user, string emailId) returns User|Error {
-    string path = USERS_PATH;
-    http:Request request = new;
-    request.setHeader(FROM, emailId);
-    map<json>|error payload = userToPayload(user).cloneWithType(MapJson);
-    setJsonPayload(payload, request, USER);
-    map<json>|error resp = post(userClient, request, path);
-    if (resp is error) {
-        return <@untainted> createResError(resp);
+    map<json>|error payload = <@untainted> userToPayload(user).cloneWithType(MapJson);
+    if (payload is error) {
+        return createTypeCastError(payload, user.toString());
     } else {
-        return <@untainted> convertToUser(resp[USER]);
+        string path = USERS_PATH;
+        http:Request request = new;
+        request.setHeader(FROM, emailId);
+        setJsonPayload(payload, request, USER);
+        map<json>|error resp = post(userClient, request, path);
+        if (resp is error) {
+            return <@untainted> createResError(resp);
+        } else {
+            return <@untainted> convertToUser(resp[USER]);
+        }
     }
 }
 
 function createContactMethod(http:Client userClient, string userId, ContactMethod contactMethod)
                 returns ContactMethod|Error {
-    string path = USERS_PATH + BACK_SLASH + userId + BACK_SLASH + CONTACT_METHODS_VAR;
-    http:Request request = new;
-    map<json> payload = contactMethodToPayload(contactMethod).cloneWithType(MapJson);
-    setJsonPayload(payload, request, CONTACT_METHOD_VAR);
-    map<json>|error resp = post(userClient, request, path);
-    if (resp is error) {
-        return <@untainted> createResError(resp);
+    map<json>|error payload = contactMethodToPayload(contactMethod).cloneWithType(MapJson);
+    if (payload is error) {
+        return createTypeCastError(payload, contactMethod.toString());
     } else {
-        return <@untainted> convertToContactMethod(resp[CONTACT_METHOD_VAR]);
+        string path = USERS_PATH + BACK_SLASH + userId + BACK_SLASH + CONTACT_METHODS_VAR;
+        http:Request request = new;
+        setJsonPayload(payload, request, CONTACT_METHOD_VAR);
+        map<json>|error resp = post(userClient, request, path);
+        if (resp is error) {
+            return <@untainted> createResError(resp);
+        } else {
+            return <@untainted> convertToContactMethod(resp[CONTACT_METHOD_VAR]);
+        }
     }
 }
 
 function createNotificationRule(http:Client userClient, string userId, NotificationRule rule)
                 returns NotificationRule|Error {
-    string path = USERS_PATH + BACK_SLASH + userId + BACK_SLASH + NOTIFICATION_RULES_VAR;
-    http:Request request = new;
-    map<json> payload = notificationRuleToPayload(rule).cloneWithType(MapJson);
-    setJsonPayload(payload, request, NOTIFICATION_RULE_VAR);
-    map<json>|error resp = post(userClient, request, path);
-    if (resp is error) {
-        return <@untainted> createResError(resp);
+    map<json>|error payload = notificationRuleToPayload(rule).cloneWithType(MapJson);
+    if (payload is error) {
+        return createTypeCastError(payload, rule.toString());
     } else {
-        return <@untainted> convertToNotificationRule(resp[NOTIFICATION_RULE_VAR]);
+        string path = USERS_PATH + BACK_SLASH + userId + BACK_SLASH + NOTIFICATION_RULES_VAR;
+        http:Request request = new;
+        setJsonPayload(payload, request, NOTIFICATION_RULE_VAR);
+        map<json>|error resp = post(userClient, request, path);
+        if (resp is error) {
+            return <@untainted> createResError(resp);
+        } else {
+            return <@untainted> convertToNotificationRule(resp[NOTIFICATION_RULE_VAR]);
+        }
     }
 }
 
@@ -131,16 +143,20 @@ function getUserNotificationRuleById(http:Client userClient, string notification
 
 function createEscalationPolicy(http:Client escalationPolicyClient, EscalationPolicy escalationPolicy, string emailId)
                returns EscalationPolicy|Error {
-    string path = ESCALATION_POLICES_PATH;
-    http:Request request = new;
-    request.setHeader(FROM, emailId);
-    map<json> payload = <@untainted> escalationPolicyToPayload(escalationPolicy).cloneWithType(mapJson);
-    setJsonPayload(payload, request, ESCALATION_POLICY_VAR);
-    map<json>|error resp = post(escalationPolicyClient, request, path);
-    if (resp is map<json>) {
-        return <@untainted> convertToEscalationPolicy(<map<json>>resp[ESCALATION_POLICY_VAR]);
+    map<json>|error payload = <@untainted> escalationPolicyToPayload(escalationPolicy).cloneWithType(MapJson);
+    if (payload is error) {
+        return createTypeCastError(payload, escalationPolicy.toString());
     } else {
-        return <@untainted> createResError(resp);
+        string path = ESCALATION_POLICES_PATH;
+        http:Request request = new;
+        request.setHeader(FROM, emailId);
+        setJsonPayload(payload, request, ESCALATION_POLICY_VAR);
+        map<json>|error resp = post(escalationPolicyClient, request, path);
+        if (resp is map<json>) {
+            return <@untainted> convertToEscalationPolicy(<map<json>>resp[ESCALATION_POLICY_VAR]);
+        } else {
+            return <@untainted> createResError(resp);
+        }
     }
 }
 
@@ -157,30 +173,38 @@ function getEscalationPolicyById(http:Client escalationPolicyClient, string esca
 
 function updateEscalationPolicy(http:Client escalationPolicyClient, string escalationPolicyId,
                                 EscalationPolicy escalationPolicy) returns EscalationPolicy|Error {
-    string path = ESCALATION_POLICES_PATH + BACK_SLASH + escalationPolicyId;
     map<json>|error payload = <@untainted> escalationPolicyToPayload(escalationPolicy).cloneWithType(MapJson);
-    http:Request request = new;
-    setJsonPayload(payload, request, ESCALATION_POLICY);
-    map<json>|error resp = put(escalationPolicyClient, request, path);
-    if (resp is map<json>) {
-        return <@untainted> convertToEscalationPolicy(<map<json>>resp[ESCALATION_POLICY_VAR]);
+    if (payload is error) {
+        return createTypeCastError(payload, escalationPolicy.toString());
     } else {
-        return <@untainted> createResError(resp);
+        string path = ESCALATION_POLICES_PATH + BACK_SLASH + escalationPolicyId;
+        http:Request request = new;
+        setJsonPayload(payload, request, ESCALATION_POLICY);
+        map<json>|error resp = put(escalationPolicyClient, request, path);
+        if (resp is map<json>) {
+            return <@untainted> convertToEscalationPolicy(<map<json>>resp[ESCALATION_POLICY_VAR]);
+        } else {
+            return <@untainted> createResError(resp);
+        }
     }
 }
 
 function createSchedule(http:Client scheduleClient, Schedule schedule, boolean overflow)
                 returns Schedule|Error {
-    string path = SCHEDULE_PATH + OVERFLOW + overflow.toString();
-    http:Request request = new;
-    map<json>|error payload = <@untainted> schedule.cloneWithType(scheduleToPayload(MapJson));
-    setJsonPayload(payload, request, SCHEDULE);
-    map<json>|error resp = post(scheduleClient, request, path);
-    if (resp is map<json>) {
-        map<json> output = <map<json>>resp[SCHEDULE];
-        return <@untainted> convertToSchedule(output);
+    map<json>|error payload = <@untainted> scheduleToPayload(schedule).cloneWithType(MapJson);
+    if (payload is error) {
+        return createTypeCastError(payload, schedule.toString());
     } else {
-        return <@untainted> createResError(resp);
+        string path = SCHEDULE_PATH + OVERFLOW + overflow.toString();
+        http:Request request = new;
+        setJsonPayload(payload, request, SCHEDULE);
+        map<json>|error resp = post(scheduleClient, request, path);
+        if (resp is map<json>) {
+            map<json> output = <map<json>>resp[SCHEDULE];
+            return <@untainted> convertToSchedule(output);
+        } else {
+            return <@untainted> createResError(resp);
+        }
     }
 }
 
@@ -205,86 +229,110 @@ function getScheduleById(http:Client scheduleClient, string scheduleId) returns 
 }
 
 function createService(http:Client serviceClient, Service serv) returns Service|Error {
-    string path = SERVICES_PATH;
-    http:Request request = new;
     map<json>|error payload = <@untainted> serviceToPayload(serv).cloneWithType(MapJson);
-    setJsonPayload(payload, request, SERVICE);
-    map<json>|error resp = post(serviceClient, request, path);
-    if (resp is map<json>) {
-        return <@untainted> convertToService(<map<json>>resp[SERVICE]);
+    if (payload is error) {
+        return createTypeCastError(payload, serv.toString());
     } else {
-        return <@untainted> createResError(resp);
+        string path = SERVICES_PATH;
+        http:Request request = new;
+        setJsonPayload(payload, request, SERVICE);
+        map<json>|error resp = post(serviceClient, request, path);
+        if (resp is map<json>) {
+            return <@untainted> convertToService(<map<json>>resp[SERVICE]);
+        } else {
+            return <@untainted> createResError(resp);
+        }
     }
 }
 
 function createIntegration(http:Client serviceClient, string serviceId, Integration integration)
                 returns Integration|Error {
-    string path = SERVICES_PATH + BACK_SLASH + serviceId + BACK_SLASH + INTEGRATIONS;
-    http:Request request = new;
     map<json>|error payload = <@untainted> integrationToPayload(integration).cloneWithType(MapJson);
-    setJsonPayload(payload, request, INTEGRATION);
-    map<json>|error resp = post(serviceClient, request, path);
-    if (resp is map<json>) {
-        return <@untainted> convertToIntegration(<map<json>>resp[INTEGRATION]);
+    if (payload is error) {
+        return createTypeCastError(payload, integration.toString());
     } else {
-        return <@untainted> createResError(resp);
+        string path = SERVICES_PATH + BACK_SLASH + serviceId + BACK_SLASH + INTEGRATIONS;
+        http:Request request = new;
+        setJsonPayload(payload, request, INTEGRATION);
+        map<json>|error resp = post(serviceClient, request, path);
+        if (resp is map<json>) {
+            return <@untainted> convertToIntegration(<map<json>>resp[INTEGRATION]);
+        } else {
+            return <@untainted> createResError(resp);
+        }
     }
 }
 
 function updateService(http:Client serviceClient, string serviceId, Service updateService) returns Service|Error {
-    string path = SERVICES_PATH + BACK_SLASH + serviceId;
-    http:Request request = new;
     map<json>|error payload = <@untainted> serviceToPayload(updateService).cloneWithType(MapJson);
-    setJsonPayload(payload, request, SERVICE);
-    map<json>|error resp = put(serviceClient, request, path);
-    if (resp is map<json>) {
-        return <@untainted> convertToService(<map<json>>resp[SERVICE]);
+    if (payload is error) {
+        return createTypeCastError(payload, updateService.toString());
     } else {
-        return <@untainted> createResError(resp);
+        string path = SERVICES_PATH + BACK_SLASH + serviceId;
+        http:Request request = new;
+        setJsonPayload(payload, request, SERVICE);
+        map<json>|error resp = put(serviceClient, request, path);
+        if (resp is map<json>) {
+            return <@untainted> convertToService(<map<json>>resp[SERVICE]);
+        } else {
+            return <@untainted> createResError(resp);
+        }
     }
 }
 
 function updateIntegration(http:Client serviceClient,string integrationId, string serviceId, Integration integration)
                returns Integration|Error {
-    string path = SERVICES_PATH + BACK_SLASH + serviceId + BACK_SLASH + INTEGRATIONS + BACK_SLASH +
-                         integrationId;
-    http:Request request = new;
     map<json>|error payload =<@untainted> integrationToPayload(integration).cloneWithType(MapJson);
-    setJsonPayload(payload, request, INTEGRATION);
-    map<json>|error resp = put(serviceClient, request, path);
-    if (resp is map<json>) {
-        return <@untainted> convertToIntegration(<map<json>>resp[INTEGRATION]);
+    if (payload is error) {
+        return createTypeCastError(payload, integration.toString());
     } else {
-        return <@untainted> createResError(resp);
+        string path = SERVICES_PATH + BACK_SLASH + serviceId + BACK_SLASH + INTEGRATIONS + BACK_SLASH +
+                             integrationId;
+        http:Request request = new;
+        setJsonPayload(payload, request, INTEGRATION);
+        map<json>|error resp = put(serviceClient, request, path);
+        if (resp is map<json>) {
+            return <@untainted> convertToIntegration(<map<json>>resp[INTEGRATION]);
+        } else {
+            return <@untainted> createResError(resp);
+        }
     }
 }
 
 function createExtension(http:Client extensionClient, Extension extension) returns Extension|Error {
-    string path = EXTENSION_PATH;
-    http:Request request = new;
-    map<json>|error payload = <@untainted> extensionToPayload(extension).cloneWithType(MapJSon);
-    setJsonPayload(payload, request, EXTENSION);
-    map<json>|error resp = post(extensionClient, request, path);
-    if (resp is map<json>) {
-        map<json> output = <map<json>>resp[EXTENSION];
-        return <@untainted> convertToExtension(output);
+    map<json>|error payload = <@untainted> extensionToPayload(extension).cloneWithType(MapJson);
+    if (payload is error) {
+        return createTypeCastError(payload, extension.toString());
     } else {
-        return <@untainted> createResError(resp);
+        string path = EXTENSION_PATH;
+        http:Request request = new;
+        setJsonPayload(payload, request, EXTENSION);
+        map<json>|error resp = post(extensionClient, request, path);
+        if (resp is map<json>) {
+            map<json> output = <map<json>>resp[EXTENSION];
+            return <@untainted> convertToExtension(output);
+        } else {
+            return <@untainted> createResError(resp);
+        }
     }
 }
 
 function updateExtension(http:Client extensionClient,string extensionId, Extension extension)
                returns Extension|Error {
-    string path = EXTENSION_PATH + BACK_SLASH + extensionId;
-    http:Request request = new;
     map<json>|error payload = <@untainted> extensionToPayload(extension).cloneWithType(MapJson);
-    setJsonPayload(payload, request, EXTENSION);
-    map<json>|error resp = put(extensionClient, request, path);
-    if (resp is map<json>) {
-        map<json> output = <map<json>>resp[EXTENSION];
-        return <@untainted> convertToExtension(output);
+    if (payload is error) {
+        return createTypeCastError(payload, extension.toString());
     } else {
-        return <@untainted> createResError(resp);
+        string path = EXTENSION_PATH + BACK_SLASH + extensionId;
+        http:Request request = new;
+        setJsonPayload(payload, request, EXTENSION);
+        map<json>|error resp = put(extensionClient, request, path);
+        if (resp is map<json>) {
+            map<json> output = <map<json>>resp[EXTENSION];
+            return <@untainted> convertToExtension(output);
+        } else {
+            return <@untainted> createResError(resp);
+        }
     }
 }
 
@@ -300,16 +348,20 @@ function getExtensionById(http:Client extensionClient, string extensionId) retur
 }
 
 function createIncident(http:Client incidentClient, Incident incident, string emailId) returns Incident|Error {
-    string path = INCIDENT_PATH;
-    http:Request request = new;
-    request.setHeader(FROM, emailId);
     map<json>|error payload = <@untainted> incidentToPayload(incident).cloneWithType(MapJson);
-    setJsonPayload(payload, request, INCIDENT);
-    map<json>|error resp = post(incidentClient, request, path);
-    if (resp is map<json>) {
-        return <@untainted> convertToIncident(<map<json>>resp[INCIDENT]);
+    if (payload is error) {
+        return createTypeCastError(payload, incident.toString());
     } else {
-        return <@untainted> createResError(resp);
+        string path = INCIDENT_PATH;
+        http:Request request = new;
+        request.setHeader(FROM, emailId);
+        setJsonPayload(payload, request, INCIDENT);
+        map<json>|error resp = post(incidentClient, request, path);
+        if (resp is map<json>) {
+            return <@untainted> convertToIncident(<map<json>>resp[INCIDENT]);
+        } else {
+            return <@untainted> createResError(resp);
+        }
     }
 }
 
@@ -339,30 +391,38 @@ function updateIncidents(http:Client incidentClient, Incident[]|json[] incident,
 
 function updateIncident(http:Client incidentClient, string incidentId, Incident|json incident, string emailId)
                returns Incident|Error {
-    string path = INCIDENT_PATH + BACK_SLASH + incidentId;
-    http:Request request = new;
-    request.setHeader(FROM, emailId);
     map<json>|error payload = <@untainted> incidentToPayload(incident).cloneWithType(MapJson);
-    setJsonPayload(payload, request, INCIDENT);
-    map<json>|error resp = put(incidentClient, request, path);
-    if (resp is map<json>) {
-        return <@untainted> convertToIncident(<map<json>>resp[INCIDENT]);
+    if (payload is error) {
+        return createTypeCastError(payload, incident.toString());
     } else {
-        return <@untainted> createResError(resp);
+        string path = INCIDENT_PATH + BACK_SLASH + incidentId;
+        http:Request request = new;
+        request.setHeader(FROM, emailId);
+        setJsonPayload(payload, request, INCIDENT);
+        map<json>|error resp = put(incidentClient, request, path);
+        if (resp is map<json>) {
+            return <@untainted> convertToIncident(<map<json>>resp[INCIDENT]);
+        } else {
+            return <@untainted> createResError(resp);
+        }
     }
 }
 
 function addNote(http:Client incidentClient, string incidentId, Note note, string emailId) returns Note|Error {
-    string path = INCIDENT_PATH + BACK_SLASH + incidentId + BACK_SLASH + NOTES;
-    http:Request request = new;
-    request.setHeader(FROM, emailId);
-    map<json>|error payload = <@untainted> incidentToPayload(incident).cloneWithType(MapJson);
-    setJsonPayload(payload, request, NOTE);
-    map<json>|error resp = post(incidentClient, request, path);
-    if (resp is map<json>) {
-        return <@untainted> convertToNote(<map<json>>resp[NOTE]);
+    map<json>|error payload = <@untainted> noteToPayload(note).cloneWithType(MapJson);
+    if (payload is error) {
+        return createTypeCastError(payload, note.toString());
     } else {
-        return <@untainted> createResError(resp);
+        string path = INCIDENT_PATH + BACK_SLASH + incidentId + BACK_SLASH + NOTES;
+        http:Request request = new;
+        request.setHeader(FROM, emailId);
+        setJsonPayload(payload, request, NOTE);
+        map<json>|error resp = post(incidentClient, request, path);
+        if (resp is map<json>) {
+            return <@untainted> convertToNote(<map<json>>resp[NOTE]);
+        } else {
+            return <@untainted> createResError(resp);
+        }
     }
 }
 
@@ -415,7 +475,7 @@ function delete(http:Client pagerdutyClient, string path) returns Error? {
     }
 }
 
-function  handleResponse(http:Response|error response) returns map<json>|Error {
+function handleResponse(http:Response|error response) returns map<json>|Error {
     if (response is error) {
         return createResError(response);
     } else {
@@ -429,23 +489,26 @@ function  handleResponse(http:Response|error response) returns map<json>|Error {
 }
 
 function createResError(error errorResponse) returns Error {
-    return Error(message = "Error received from the pagerduty server", cause = errorResponse);
+    return Error("Error received from the pagerduty server", errorResponse);
+}
+
+function createTypeCastError(error errorResponse, string data) returns Error {
+    return Error("Error occurred when converting object [" + data + "] to payload", errorResponse);
 }
 
 function createError(http:Response resp) returns Error {
     map<json> output = <map<json>>resp.getJsonPayload();
     string message = "";
     if (output["error"] is string) {
-        return <@untainted> Error(message =  "Error received from the pagerduty server",
-                                  cause = error(PAGERDUTY_ERROR, message = output["error"].toString()));
+        return <@untainted> Error("Error received from the pagerduty server", error(output["error"].toString()));
     } else {
         map<json> err = <map<json>>output["error"];
         if (err.hasKey("errors")) {
             message = err["errors"].toString();
         }
-        return <@untainted> Error(message =  "Error received from the pagerduty server: " + message,
-                                  cause = error(PAGERDUTY_ERROR, message = output["error"].message.toString(),
-                                  errorCode = output["error"].code));
+        return <@untainted> Error("Error received from the pagerduty server: " + message,
+                                  error(output["error"].message.toString()),
+                                  errorCode = <int>(output["error"].code));
     }
 }
 
@@ -453,7 +516,7 @@ function setJsonPayload(map<json>|error|json[] data, http:Request request, strin
     map<json> payload = {};
 	if (data is map<json>|json[]) {
 	    payload[key] = data;
-        json|error jsonPayload = json.constructFrom(payload);
+        json|error jsonPayload = payload.cloneWithType(json);
         if (jsonPayload is json) {
             request.setJsonPayload(jsonPayload);
         }
@@ -461,7 +524,7 @@ function setJsonPayload(map<json>|error|json[] data, http:Request request, strin
 }
 
 function getError() returns error {
-    return error(PAGERDUTY_ERROR, message = "Error occurred while getting the logged-in user email ID: " +
+    return Error("Error occurred while getting the logged-in user email ID: " +
                  "An account-level access token, we were unable to determine the user's identity. " +
                  "Please use a user-level token.");
 }

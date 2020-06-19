@@ -27,7 +27,7 @@ public type TokenAuthHandler object {
 
     public auth:OutboundAuthProvider authProvider;
 
-    public function __init(auth:OutboundAuthProvider authProvider) {
+    public function init(auth:OutboundAuthProvider authProvider) {
       self.authProvider = authProvider;
     }
 
@@ -74,11 +74,9 @@ public type TokenAuthHandler object {
 function prepareAuthenticationError(string message, auth:Error? err = ()) returns http:AuthenticationError {
     log:printDebug(function () returns string { return message; });
     if (err is error) {
-        http:AuthenticationError preparedError = error(http:AUTHN_FAILED, message = message, cause = err);
-        return preparedError;
+        return http:AuthenticationError(message, err);
     }
-    http:AuthenticationError preparedError = error(http:AUTHN_FAILED, message = message);
-    return preparedError;
+    return http:AuthenticationError(message);
 }
 
 # Creates a map out of the headers of the HTTP response.
