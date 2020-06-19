@@ -56,14 +56,13 @@ import ballerinax/pagerduty;
 import ballerina/time;
 
 public function main() {
-    pagerduty:Account pagerduty = new("API_TOKEN");
+    pagerduty:Account pagerduty = new("s1tayEadzxp5mXWtuyh5");
     pagerduty:UserClient userClient = pagerduty.getUserClient();
     pagerduty:EscalationPolicyClient escalationClient = pagerduty.getEscalationPolicyClient();
     pagerduty:ScheduleClient scheduleClient = pagerduty.getScheduleClient();
     pagerduty:ServiceClient serviceClient = pagerduty.getServiceClient();
     pagerduty:ExtensionClient extensionClient = pagerduty.getExtensionClient();
     pagerduty:IncidentClient incidentClient = pagerduty.getIncidentClient();
-
     string userId = "";
     pagerduty:User user =  { 'type: "user", name: "Abisayan", email: "example@gmail.com", role: "admin" };
     pagerduty:ContactMethod contactMethod = { 'type: "sms", summary: "Home", label: "home", countryCode: 1,
@@ -76,7 +75,7 @@ public function main() {
     // Creates a new user
     pagerduty:Error|pagerduty:User output = userClient->createUser(user);
     if (output is pagerduty:Error) {
-        io:println("Error" + output.toString());
+        io:println("Error " + output.toString());
     } else {
         userId = output.get("id").toString();
         createdUser = output;
@@ -86,7 +85,7 @@ public function main() {
     // Creates a new contact method
     pagerduty:Error|pagerduty:ContactMethod createdMethod = userClient->createContactMethod(userId, contactMethod);
     if (createdMethod is pagerduty:Error) {
-        io:println("Error" + createdMethod.toString());
+        io:println("Error " + createdMethod.toString());
     } else {
         createdContactMethod = createdMethod;
         io:println("Contact method id " + createdContactMethod.get("id").toString());
@@ -96,11 +95,8 @@ public function main() {
     pagerduty:NotificationRule rule = { startDelayInMinutes: 1, contactMethod : createdContactMethod, 
                                         urgency: "high", 'type: "assignmentNotificationRule" };
     pagerduty:Error|pagerduty:NotificationRule createdRule = userClient->createNotificationRule(userId, rule);
-    if (createdRule is pagerduty:Error) {
-        io:println("Error" + createdRule.toString());
-    } else {
-        io:println("Notification rule id " + createdRule.get("id").toString());
-    }
+    string result = createdRule is pagerduty:Error ? ("Error " + createdRule.toString()) : ("Notification rule id " + createdRule.get("id").toString());
+    io:println(result);
 
     // Creates a new escalation policy
     pagerduty:EscalationPolicy escalationPolicy = { 'type: "escalationPolicy", name: "Escalation Policy for Test",
@@ -109,7 +105,7 @@ public function main() {
                                                   };
     pagerduty:EscalationPolicy|pagerduty:Error response = escalationClient->create(escalationPolicy);
     if (response is pagerduty:Error) {
-        io:println("Error" + response.toString());
+        io:println("Error " + response.toString());
     } else {
         createdPolicy = response;
         io:println("EscalationPolicy id " + response.get("id").toString());
@@ -123,18 +119,15 @@ public function main() {
                                                      }]
                                   };
     pagerduty:Schedule|pagerduty:Error createdSchedule = scheduleClient->create(schedule);
-    if (createdSchedule is pagerduty:Error) {
-       io:println("Error" + createdSchedule.toString());
-    } else {
-        io:println("Schedule id " + createdSchedule.get("id").toString());
-    }
+    result = createdSchedule is pagerduty:Error ? ("Error " + createdSchedule.toString()) : ("Schedule id " + createdSchedule.get("id").toString());
+    io:println(result);
 
     // Creates a new service
     pagerduty:Service serv = { name: "New services", escalationPolicy: createdPolicy,
                                alertCreation:"createAlertsAndIncidents" };
     pagerduty:Service|pagerduty:Error resp = serviceClient->createService(serv);
     if (resp is pagerduty:Error) {
-        io:println("Error" + resp.toString());
+        io:println("Error " + resp.toString());
     } else {
         createdService = resp;
         io:println("Service id " + resp.get("id").toString());
@@ -148,19 +141,13 @@ public function main() {
                                        summary: "Generic V2 Webhook"}, services: [createdService]
                                     };
     pagerduty:Extension|pagerduty:Error createdExtension = extensionClient->create(extension);
-    if (createdExtension is pagerduty:Error) {
-        io:println("Error" + createdExtension.toString());
-    } else {
-        io:println("Extension id " + createdExtension.get("id").toString());
-    }
+    result = createdExtension is pagerduty:Error ? ("Error " + createdExtension.toString()) : ("Extension id " + createdExtension.get("id").toString());
+    io:println(result);
 
     // Creates a new incident
     pagerduty:Incident incident = { 'type: "incident", title: "Test", 'service: createdService };
     pagerduty:Incident|pagerduty:Error createdIncident = incidentClient->createIncident(incident);
-    if (createdIncident is pagerduty:Error) {
-        io:println("Error" + createdIncident.toString());
-    } else {
-        io:println("Incident id " + createdIncident.get("id").toString());
-    }
+    result = createdIncident is pagerduty:Error ? ("Error " + createdIncident.toString()) : ("Incident id " + createdIncident.get("id").toString());
+    io:println(result);
 }
 ```
