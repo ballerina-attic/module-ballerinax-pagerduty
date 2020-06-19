@@ -15,7 +15,7 @@
 You can use the `tests.bal` file to test all the connector actions by following the below steps:
 
 - Create `ballerina.conf` file in the module-ballerinax-pagerduty.
-- Obtain `personal API key` as mentioned above and `your account URL subdomain (https://<subdomain>.pagerduty.com)` and add those values in the ballerina.conf file.
+- Obtain `personal API key` as mentioned above and `your account URL's subdomain (https://<subdomain>.pagerduty.com)` and add those values in the ballerina.conf file.
     ```ballerina
     PAGERDUTY_API_TOKEN = "USER_API_TOKEN"
     SUB_DOMAIN = "YOUR_ACCOUNT_URL_SUB_DOMAIN"

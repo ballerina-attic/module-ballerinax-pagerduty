@@ -56,7 +56,7 @@ import ballerinax/pagerduty;
 import ballerina/time;
 
 public function main() {
-    pagerduty:Account pagerduty = new("s1tayEadzxp5mXWtuyh5");
+    pagerduty:Account pagerduty = new("API_TOKEN");
     pagerduty:UserClient userClient = pagerduty.getUserClient();
     pagerduty:EscalationPolicyClient escalationClient = pagerduty.getEscalationPolicyClient();
     pagerduty:ScheduleClient scheduleClient = pagerduty.getScheduleClient();
