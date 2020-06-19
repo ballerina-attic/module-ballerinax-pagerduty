@@ -21,6 +21,7 @@ import ballerina/time;
 
 string API_TOKEN = system:getEnv("PAGERDUTY_API_TOKEN") == "" ? config:getAsString("PAGERDUTY_API_TOKEN") :
                    system:getEnv("PAGERDUTY_API_TOKEN");
+string subDomain = config:getAsString("SUB_DOMAIN") == "" ? "wqs23" : config:getAsString("SUB_DOMAIN");
 Account pagerduty = new(API_TOKEN);
 UserClient userClient = pagerduty.getUserClient();
 EscalationPolicyClient escalationClient = pagerduty.getEscalationPolicyClient();
@@ -283,7 +284,7 @@ function testUpdateService() {
 function testCreateIntegration() {
     Integration integration = {
                    'type: "keynoteInboundIntegration",
-                   email: "test@wsqsd.pagerduty.com"
+                   email: "email@" + subDomain + ".pagerduty.com"
                  };
     var response = serviceClient->createIntegration(serviceId, integration);
     if (response is Error) {
@@ -298,7 +299,7 @@ function testCreateIntegration() {
     dependsOn: ["testCreateIntegration"]
 }
 function testUpdateIntegration() {
-    createdIntegration.email = "test4e1@wsqsd.pagerduty.com";
+    createdIntegration.email = "updateemail@" + subDomain + ".pagerduty.com";
     Integration updateIntegration = createdIntegration;
     var response = serviceClient->updateIntegration(integrationId, serviceId, updateIntegration);
     if (response is Error) {

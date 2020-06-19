@@ -18,10 +18,10 @@ import ballerina/time;
 
 function serviceToPayload(Service|json input) returns @tainted map<json> {
     map<json>|Service serv = {};
-    if (input is json && input != ()) {
-        serv = <map<json>>input;
-    } else if (input is Service) {
+    if (input is Service) {
         serv = input;
+    } else if (input != ()) {
+        serv = <map<json>>input;
     }
     map<json> payload = {};
     var value = serv[TYPE];
@@ -75,15 +75,15 @@ function serviceToPayload(Service|json input) returns @tainted map<json> {
     int i = 0;
     json[] list = [];
     ScheduledAction[]?|json? scheduledActions = serv[SCHEDULED_ACTIONS];
-    if (scheduledActions is json && scheduledActions != ()) {
+    if (scheduledActions is ScheduledAction[]) {
+       while (i < scheduledActions.length()) {
+           list[i] = scheduledActionToPayload(scheduledActions[i]);
+           i = i + 1;
+       }
+    } else if (scheduledActions != ()) {
         json[] actions = <json[]>scheduledActions;
         while (i < actions.length()) {
             list[i] = escalationRuleToPayload(actions[i]);
-            i = i + 1;
-        }
-    } else if (scheduledActions is ScheduledAction[]){
-        while (i < scheduledActions.length()) {
-            list[i] = scheduledActionToPayload(scheduledActions[i]);
             i = i + 1;
         }
     }
@@ -451,7 +451,7 @@ function convertToSupportHour(map<json> input) returns SupportHour {
 
 function addDaysOfWeek(json input, SupportHour hours)  {
     int[] output = [];
-    var days = json[].constructFrom(input);
+    var days = input.cloneWithType(JsonArray);
     if (days is json[]) {
         int i = 0;
         int length = days.length();

@@ -18,10 +18,10 @@ The following groups are provided by Ballerina to interact with the different AP
 
 ## Compatibility
 
-|                     |    Version     |
-|:-------------------:|:--------------:|
-| Ballerina Language  | 1.2.x          |
-| PagerDuty REST API  | v2             |
+|                     |    Version           |
+|:-------------------:|:--------------------:|
+| Ballerina Language  | Swan Lake Preview1   |
+| PagerDuty REST API  | v2                   |
 
 ## Sample
 

@@ -54,10 +54,10 @@ function convertToCommon(json resp) returns CommonRecord {
 
 function commonToPayload(CommonRecord|json input) returns map<json>? {
     map<json>|CommonRecord commonRecord = {};
-    if (input is json && input != ()) {
-        commonRecord = <map<json>>input;
-    } else if (input is CommonRecord){
+    if (input is CommonRecord) {
         commonRecord = input;
+    } else if (input != ()) {
+        commonRecord = <map<json>>input;
     }
     if (commonRecord != {}) {
         map<json> payload = {};
@@ -129,9 +129,9 @@ function convertToCommons(map<json> input, string key) returns CommonRecord[]? {
 }
 
 function commonsOrJsonToPayload(json|CommonRecord[] commonRecords, map<json> payload, string key) {
-    if (commonRecords is json && commonRecords != ()) {
-        commonsToPayload(<json[]>commonRecords, payload, key);
-    } else if (commonRecords is CommonRecord[]){
+    if (commonRecords is CommonRecord[]) {
         commonsToPayload(commonRecords, payload, key);
+    } else if (commonRecords != ()) {
+        commonsToPayload(<json[]>commonRecords, payload, key);
     }
 }

@@ -16,10 +16,10 @@
 
 function escalationPolicyToPayload(EscalationPolicy|json input) returns @tainted map<json> {
     map<json>|EscalationPolicy escalationPolicy = {};
-    if (input is json && input != ()) {
-        escalationPolicy = <map<json>>input;
-    } else if (input is EscalationPolicy) {
+    if (input is EscalationPolicy) {
         escalationPolicy = input;
+    } else {
+        escalationPolicy = <map<json>>input;
     }
     map<json> payload = {};
     addStringToPayload(escalationPolicy[HTML_URL], payload, HTML_URL_VAR);
@@ -48,16 +48,16 @@ function escalationPolicyToPayload(EscalationPolicy|json input) returns @tainted
     // Sets escalation rules
     json[] list = [];
     var rules = escalationPolicy[ESCALATION_RULES];
-    if (rules is json && rules != ()) {
+    if (rules is EscalationRule[] && rules != []) {
+        while (i < rules.length()) {
+            list[i] = escalationRuleToPayload(rules[i]);
+            i = i + 1;
+        }
+                payload[ESCALATION_RULE_VAR] = list;
+    } else {
         json[] escalationRule = <json[]>rules;
         while (i < escalationRule.length()) {
             list[i] = escalationRuleToPayload(escalationRule[i]);
-            i = i + 1;
-        }
-        payload[ESCALATION_RULE_VAR] = list;
-    } else if (rules is EscalationRule[] && rules != []){
-        while (i < rules.length()) {
-            list[i] = escalationRuleToPayload(rules[i]);
             i = i + 1;
         }
         payload[ESCALATION_RULE_VAR] = list;
@@ -80,10 +80,10 @@ function escalationPolicyToPayload(EscalationPolicy|json input) returns @tainted
 
 function escalationRuleToPayload(EscalationRule|json input) returns map<json> {
     map<json>|EscalationRule escalationRule = {};
-    if (input is json) {
-        escalationRule = <map<json>>input;
-    } else {
+    if (input is EscalationRule) {
         escalationRule = input;
+    } else if (input != ()) {
+        escalationRule = <map<json>>input;
     }
     map<json> payload = {};
     addIntToPayload(escalationRule[ESCALATION_DELAY_IN_MINUTES], payload, ESCALATION_DELAY_IN_MINUTES_VAR);
