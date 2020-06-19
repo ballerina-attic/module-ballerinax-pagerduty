@@ -37,7 +37,7 @@ function userToPayload(User|json input) returns @tainted map<json> {
     if (methods is ContactMethod[]) {
         addContactMethodsToPayload(methods, payload);
     } else  {
-        json[]|error methodsValue = json[].constructFrom(methods);
+        json[]|error methodsValue = methods.cloneWithType(JsonArray);
         if (methodsValue is json[]) {
             addContactMethodsToPayload(methodsValue, payload);
         }
@@ -46,7 +46,7 @@ function userToPayload(User|json input) returns @tainted map<json> {
     if (rules is NotificationRule[]) {
         addNotificationRulesToPayload(rules, payload);
     } else  {
-        json[]|error rulesValue = json[].constructFrom(rules);
+        json[]|error rulesValue = rules.cloneWithType(JsonArray);
         if (rulesValue is json[]) {
             addNotificationRulesToPayload(rulesValue, payload);
         }
@@ -56,7 +56,7 @@ function userToPayload(User|json input) returns @tainted map<json> {
     if (incidents is Incident[]) {
         payload[COORDINATED_INCIDENTS_VAR] = incidentsToPayload(incidents);
     } else if (incidents != ()){
-        json[]|error incidentsValue = json[].constructFrom(incidents);
+        json[]|error incidentsValue = incidents.cloneWithType(JsonArray);
         if (incidentsValue is json[]) {
             payload[COORDINATED_INCIDENTS_VAR] =incidentsToPayload(incidentsValue);
         }

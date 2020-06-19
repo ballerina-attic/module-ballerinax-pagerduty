@@ -69,7 +69,7 @@ function incidentToPayload(Incident|json input) returns @tainted map<json> {
     if (assignments is Assignment[] && assignments != []) {
         assignmentsToPayload(assignments, payload, ASSIGNMENTS);
     } else {
-        json[]|error assignmentValue = json[].constructFrom(assignments);
+        json[]|error assignmentValue = assignments.cloneWithType(JsonArray);
         if (assignmentValue is json[]) {
             assignmentsToPayload(assignmentValue, payload, ASSIGNMENTS);
         }
@@ -82,7 +82,7 @@ function incidentToPayload(Incident|json input) returns @tainted map<json> {
     if (acknowledgements is Acknowledgement[] && acknowledgements != []) {
         acknowledgementsToPayload(acknowledgements, payload, ACKNOWLEDGEMENTS);
     } else {
-        json[]|error acknowledgementValue = json[].constructFrom(acknowledgements);
+        json[]|error acknowledgementValue = acknowledgements.cloneWithType(JsonArray);
         if (acknowledgementValue is json[]) {
             acknowledgementsToPayload(acknowledgementValue, payload, ACKNOWLEDGEMENTS);
         }
@@ -105,7 +105,7 @@ function assignmentsToPayload(Assignment[]|json[] assignments,  @tainted map<jso
      json[] list = [];
      while (i < assignments.length()) {
          map<json> assign = {};
-         map<json>|error assignment = map<json>.constructFrom(assignments[i]);
+         map<json>|error assignment = assignments[i].cloneWithType(MapJson);
          if (assignment is map<json>) {
              var assignee = assignment[ASSIGNEE];
              assign[ASSIGNEE] = userToPayload(assignee);
@@ -124,7 +124,7 @@ function acknowledgementsToPayload(Acknowledgement[]|json[] acknowledgements, ma
      json[] list = [];
      map<json> output = {};
      while (i < acknowledgements.length()) {
-         map<json>|error assignment = map<json>.constructFrom(acknowledgements[i]);
+         map<json>|error assignment = acknowledgements[i].cloneWithType(MapJson);
          if (assignment is map<json>) {
              var value = assignment[ACKNOWLEDGER];
              output[ACKNOWLEDGER] = commonToPayload(value);

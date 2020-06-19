@@ -16,17 +16,10 @@
 
 # A record type defined to be used as the "error detail" in the errors defined in this module.
 #
-# + message - A message describing the error in detail
-# + cause - The error, which caused this error (if any)
 # + errorCode - The pagerduty error code
 type Detail record {
-    string message;
-    error cause?;
     int errorCode?;
 };
 
-# Represents the PagerDuty error reason.
-public const PAGERDUTY_ERROR = "{ballerinax/pagerduty}Error";
-
 # Represents the PagerDuty error type with details.
-public type Error error<PAGERDUTY_ERROR, Detail>;
+public type Error error<Detail>;

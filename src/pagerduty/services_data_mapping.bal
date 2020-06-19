@@ -451,7 +451,7 @@ function convertToSupportHour(map<json> input) returns SupportHour {
 
 function addDaysOfWeek(json input, SupportHour hours)  {
     int[] output = [];
-    var days = json[].constructFrom(input);
+    var days = input.cloneWithType(JsonArray);
     if (days is json[]) {
         int i = 0;
         int length = days.length();
