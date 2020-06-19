@@ -13,7 +13,7 @@ The following sections provide you details on how to use the `pagerduty`.
 
 |                             |           Version           |
 |:---------------------------:|:---------------------------:|
-| Ballerina Language          |           2.0.0            |
+| Ballerina Language          |    Swan Lake Preview1       |
 | PagerDuty REST API          |            v2               |
 
 ## Feature Overview

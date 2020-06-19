@@ -2,7 +2,7 @@
 
 |                             |           Version           |
 |:---------------------------:|:---------------------------:|
-| Ballerina Language          |            2.0.0            |
+| Ballerina Language          |      Swan Lake Preview1     |
 | PagerDuty REST API          |            v2               |
 
 ## Prerequisites
